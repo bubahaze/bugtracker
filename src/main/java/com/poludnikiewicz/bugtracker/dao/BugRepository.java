@@ -5,4 +5,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BugRepository extends JpaRepository<Bug, Long> {
+
+    Bug findById();
 }
