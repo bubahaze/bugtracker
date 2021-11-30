@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,14 +24,18 @@ public class BugService {
     }
 
     public Bug addBug(Bug bug) {
-        //setting unique code for a bug
         bug.setUniqueCode(UUID.randomUUID().toString());
         return bugRepo.save(bug);
     }
 
-    public Bug updateBug(Bug bug) {
-        //sure it is enough to update a bug?
-        return bugRepo.save(bug);
+    public Bug updateBug(Bug bug, Long id) {
+        Bug bugToUpdate = findById(id).get();
+        bugToUpdate.setSummary(bug.getSummary());
+        bugToUpdate.setProject(bug.getProject());
+        bugToUpdate.setDescription(bug.getDescription());
+        bugToUpdate.setCreationDate(LocalDateTime.now());
+
+        return bugRepo.save(bugToUpdate);
     }
 
     public void deleteBug(Long id) { //@Requestparam here ?
@@ -40,12 +46,16 @@ public class BugService {
         return bugRepo.findAll();
     }
 
-    public Bug findById(Long id) {
+    public Optional<Bug> findById(Long id) {
         //return type Optional instead of type Bug?
-        return bugRepo.findById(id)
-                .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found"));
+        return bugRepo.findById(id);
+                //.orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found"));
     }
 
-    //UPDATE METHOD
+    public Collection<Bug> findByProject(String project) {
+        return bugRepo.findByProjectIgnoreCaseOrderByCreationDateDesc(project);
+
+    }
+
     //QUERY METHODS
 }

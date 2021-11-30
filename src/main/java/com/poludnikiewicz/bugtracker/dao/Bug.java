@@ -28,7 +28,7 @@ public class Bug implements Serializable {
     private String description;
     @Column
     @CreationTimestamp
-    private LocalDateTime reportedAt;
+    private LocalDateTime creationDate;
     @Column
     private String uniqueCode;
 
