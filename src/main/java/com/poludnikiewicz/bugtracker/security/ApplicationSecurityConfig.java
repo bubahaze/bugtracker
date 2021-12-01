@@ -24,17 +24,17 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .passwordEncoder(getEncoder());
 
         auth.inMemoryAuthentication()
-                .withUser("Admin").password("adminPassword").roles("ADMIN")
-                .and().withUser("User").password("userPassword").roles("USER")
-                .and().withUser("Engineer").password("engineerPassword").roles("STAFF")
+                .withUser("Admin").password(getEncoder().encode("adminPass")).roles("ADMIN")
+                //.and().withUser("User").password("userPassword").roles("USER")
+                //.and().withUser("Engineer").password("engineerPassword").roles("STAFF")
                 .and().passwordEncoder(getEncoder());
     }
 
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .mvcMatchers("/api/admin/**").hasRole("ADMIN")
-                .mvcMatchers("/api/manage").hasRole("STAFF")
-                .mvcMatchers("/api/bugtracker/*").hasRole("USER")
+                //.mvcMatchers("/api/manage").hasRole("STAFF")
+                //.mvcMatchers("/api/bugtracker/*").hasRole("USER")
                 .mvcMatchers("/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -44,12 +44,12 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.loginPage("/login.html") //NOT EXISTING YET!
                 //.loginProcessingUrl("/perform_login")
                 //.defaultSuccessUrl("/homepage.html", false) // false =user redirected to previous page they wanted to visit before being prompted to authenticate.
-               // .failureUrl("/login.html?error=true")
+                //.failureUrl("/login.html?error=true")
                 //.failureHandler(authenticationFailureHandler())
-                .and()
-                .logout()
-                .logoutUrl("/perform_logout")
-                .deleteCookies("JSESSIONID")
+               // .and()
+               // .logout()
+               // .logoutUrl("/perform_logout")
+               // .deleteCookies("JSESSIONID")
                 //.logoutSuccessHandler(logoutSuccessHandler())
                 .and()
                 .httpBasic();
