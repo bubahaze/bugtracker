@@ -34,6 +34,8 @@ public class BugService {
         bugToUpdate.setProject(bug.getProject());
         bugToUpdate.setDescription(bug.getDescription());
         bugToUpdate.setCreationDate(LocalDateTime.now());
+        bugToUpdate.setStatus(bug.getStatus());
+        bugToUpdate.setAssignedStaffMember(bug.getAssignedStaffMember());
 
         return bugRepo.save(bugToUpdate);
     }
@@ -57,5 +59,5 @@ public class BugService {
 
     }
 
-    //QUERY METHODS
+    //TODO: QUERY METHODS
 }

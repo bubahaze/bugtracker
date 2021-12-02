@@ -42,6 +42,8 @@ public class Bug implements Serializable {
     @JsonIgnore
     private StaffMember assignedStaffMember; //should StaffMember extend User class ???
 
+    //TODO: field enum priority?
+
 
 
 

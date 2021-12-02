@@ -16,7 +16,7 @@ import java.util.List;
 @RequestMapping("/api/bugtracker")
 public class BugController {
 
-    private BugService service;
+    private final BugService service;
 
     @Autowired
     public BugController(BugService service) {
@@ -49,17 +49,5 @@ public class BugController {
        return new ResponseEntity<>(newBug, HttpStatus.CREATED);
     }
 
-    @PutMapping("/bug")
-    public ResponseEntity<Bug> updateBug(@RequestBody Bug bug, @PathVariable Long id) {
 
-        Bug updatedBug = service.updateBug(bug, id);
-        return new ResponseEntity<>(updatedBug, HttpStatus.OK);
-    }
-
-    @DeleteMapping("/bug/{id}")
-    public ResponseEntity<?> deleteBug(@PathVariable Long id) {
-        //question mark means it will not return any type in responseEntity
-        service.deleteBug(id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 }
