@@ -35,7 +35,7 @@ public class BugService {
         bugToUpdate.setDescription(bug.getDescription());
         bugToUpdate.setCreationDate(LocalDateTime.now());
         bugToUpdate.setStatus(bug.getStatus());
-        bugToUpdate.setAssignedStaffMember(bug.getAssignedStaffMember());
+        //bugToUpdate.setAssignedStaffMember(bug.getAssignedStaffMember());
 
         return bugRepo.save(bugToUpdate);
     }

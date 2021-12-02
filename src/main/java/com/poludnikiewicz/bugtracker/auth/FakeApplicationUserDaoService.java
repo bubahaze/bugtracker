@@ -1,6 +1,7 @@
 package com.poludnikiewicz.bugtracker.auth;
 
 import com.google.common.collect.Lists;
+import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
@@ -34,7 +35,7 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
                 new ApplicationUser(
                         "administrator",
                         passwordEncoder.encode("adminPass"),
-                        ADMIN.getGrantedAuthorities(),
+                        ApplicationUserRole.ADMIN.getGrantedAuthorities(),
                         true,
                         true,
                         true,
@@ -43,7 +44,7 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
                 new ApplicationUser(
                         "engineer",
                         passwordEncoder.encode("engineerPass"),
-                        STAFF.getGrantedAuthorities(),
+                        ApplicationUserRole.STAFF.getGrantedAuthorities(),
                         true,
                         true,
                         true,
@@ -52,7 +53,7 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
                 new ApplicationUser(
                         "userOfApp",
                         passwordEncoder.encode("userPass"),
-                        USER.getGrantedAuthorities(),
+                        ApplicationUserRole.USER.getGrantedAuthorities(),
                         true,
                         true,
                         true,

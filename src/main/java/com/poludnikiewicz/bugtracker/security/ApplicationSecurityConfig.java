@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import static com.poludnikiewicz.bugtracker.security.ApplicationUserRole.*;
 
 @Configuration
 @EnableWebSecurity
@@ -43,14 +44,14 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .mvcMatchers("/api/admin/**").hasRole("ADMIN")
+                .mvcMatchers("manage/api/**").hasRole(ADMIN.name())
                 //.mvcMatchers("/api/manage").hasRole("STAFF")
                 //.mvcMatchers("/api/bugtracker/*").hasRole("USER")
                 .mvcMatchers("/login").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .csrf().disable().headers().frameOptions().disable()
-                .and()
+                .csrf().disable()//.headers().frameOptions().disable()
+                //.and()
                 .formLogin()
                 //.loginPage("/login.html") //NOT EXISTING YET!
                 //.loginProcessingUrl("/perform_login")
@@ -72,14 +73,13 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 //        return new BCryptPasswordEncoder();
 //    } commented because I provided password encoder as a private field
 
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setPasswordEncoder(passwordEncoder);
-        provider.setUserDetailsService(userService);
-        return provider;
-    }
-    //STOPPED TUTORIAL AT 03:28:00
+//    @Bean
+//    public DaoAuthenticationProvider daoAuthenticationProvider() {
+//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+//        provider.setPasswordEncoder(passwordEncoder);
+//        provider.setUserDetailsService(userService);
+//        return provider;
+//    }
 
 
 }

@@ -38,9 +38,9 @@ public class Bug implements Serializable {
     @JsonIgnore
     private BugStatus status; //how to make it automatically REPORTED upon creating Bug by user -
     //constructor? but what about id and unique code then ?
-    @Column
-    @JsonIgnore
-    private StaffMember assignedStaffMember; //should StaffMember extend User class ???
+//    @Column
+//    @JsonIgnore
+//    private StaffMember assignedStaffMember; //should StaffMember extend User class ???
 
     //TODO: field enum priority?
 
