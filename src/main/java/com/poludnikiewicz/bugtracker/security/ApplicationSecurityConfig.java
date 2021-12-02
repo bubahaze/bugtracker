@@ -1,9 +1,11 @@
 package com.poludnikiewicz.bugtracker.security;
 
 
+import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -16,18 +18,27 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    //@Autowired
+    //private UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
+    private final ApplicationUserService userService;
+
+
     @Autowired
-    private UserDetailsService userDetailsService;
+    public ApplicationSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService userService) {
+        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
+    }
 
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService)
-                .passwordEncoder(getEncoder());
+        auth.userDetailsService(userService)
+                .passwordEncoder(passwordEncoder);
 
         auth.inMemoryAuthentication()
-                .withUser("Admin").password(getEncoder().encode("adminPass")).roles("ADMIN")
+                .withUser("Admin").password(passwordEncoder.encode("adminPass")).roles("ADMIN")
                 //.and().withUser("User").password("userPassword").roles("USER")
                 //.and().withUser("Engineer").password("engineerPassword").roles("STAFF")
-                .and().passwordEncoder(getEncoder());
+                .and().passwordEncoder(passwordEncoder);
     }
 
     protected void configure(HttpSecurity http) throws Exception {
@@ -56,10 +67,19 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
+//    @Bean
+//    public PasswordEncoder getEncoder() {
+//        return new BCryptPasswordEncoder();
+//    } commented because I provided password encoder as a private field
+
     @Bean
-    public PasswordEncoder getEncoder() {
-        return new BCryptPasswordEncoder();
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(userService);
+        return provider;
     }
+    //STOPPED TUTORIAL AT 03:28:00
 
 
 }

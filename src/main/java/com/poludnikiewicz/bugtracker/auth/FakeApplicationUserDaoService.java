@@ -8,6 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * exemplary repo that creates explicitly few users to save them in database
+ */
+
 @Repository("fake")
 public class FakeApplicationUserDaoService implements ApplicationUserDao {
 
@@ -57,5 +61,6 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
 
 
         );
+        return applicationUsers;
     }
 }
