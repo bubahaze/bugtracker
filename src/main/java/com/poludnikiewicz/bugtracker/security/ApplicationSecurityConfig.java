@@ -47,15 +47,17 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http
+                .csrf().disable()
+                .authorizeRequests()
                 //.mvcMatchers(HttpMethod.DELETE, "manage/api/**").hasRole(ADMIN.name())
                 //.mvcMatchers("manage/api/**").hasAnyRole(ADMIN.name(), STAFF.name())
                 //.mvcMatchers("/api/manage").hasRole("STAFF")
                 //.mvcMatchers("/api/bugtracker/*").hasRole("USER")
-                .mvcMatchers("/login").permitAll()
+                .mvcMatchers("/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .csrf().disable()//.headers().frameOptions().disable()
+                //.csrf().disable()//.headers().frameOptions().disable()
                 //.and()
                 .formLogin()
                 .loginPage("/login").permitAll();
@@ -68,6 +70,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                // .logoutUrl("/perform_logout")
                // .deleteCookies("JSESSIONID")
                 //.logoutSuccessHandler(logoutSuccessHandler())
+       // .httpBasic();
 
     }
 
