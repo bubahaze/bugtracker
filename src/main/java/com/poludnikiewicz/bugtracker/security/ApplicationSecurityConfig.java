@@ -15,6 +15,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
 import static com.poludnikiewicz.bugtracker.security.ApplicationUserRole.*;
 
 @Configuration
@@ -54,21 +57,28 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.mvcMatchers("manage/api/**").hasAnyRole(ADMIN.name(), STAFF.name())
                 //.mvcMatchers("/api/manage").hasRole("STAFF")
                 //.mvcMatchers("/api/bugtracker/*").hasRole("USER")
-                .mvcMatchers("/css/**", "/js/**").permitAll()
+                .mvcMatchers("index", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 //.csrf().disable()//.headers().frameOptions().disable()
                 //.and()
                 .formLogin()
-                .loginPage("/login").permitAll();
+                .loginPage("/login").permitAll()
                 //.loginProcessingUrl("/perform_login")
-                //.defaultSuccessUrl("/homepage.html", false) // false =user redirected to previous page they wanted to visit before being prompted to authenticate.
+                .defaultSuccessUrl("/dashboard", false)
+                .and()
+                .rememberMe()// false =user redirected to previous page they wanted to visit before being prompted to authenticate.
                 //.failureUrl("/login.html?error=true")
                 //.failureHandler(authenticationFailureHandler())
-               // .and()
-               // .logout()
-               // .logoutUrl("/perform_logout")
-               // .deleteCookies("JSESSIONID")
+                .and()
+                .logout()
+                    .logoutUrl("/logout")
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
+                    .clearAuthentication(true)
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID", "remember-me")
+                    .logoutSuccessUrl("/login");
+
                 //.logoutSuccessHandler(logoutSuccessHandler())
        // .httpBasic();
 

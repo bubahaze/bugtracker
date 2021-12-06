@@ -15,8 +15,14 @@ public class TemplateController {
     @GetMapping("login")
     public ModelAndView displayLoginPage(HttpServletResponse response) {
         response.addHeader("Content-Type", "text/html");
-      // return "loginpage";
         return new ModelAndView("login");
+    }
+
+    @GetMapping("dashboard")
+    public ModelAndView displayDashboard(HttpServletResponse response) {
+        response.addHeader("Content-Type", "text/html");
+        return new ModelAndView("dashboard");
+        //TODO: EACH ROLE HAS DIFFERENT DASHBOARD VIEW WITH DIFFERENT OPTIONS
     }
 
 
