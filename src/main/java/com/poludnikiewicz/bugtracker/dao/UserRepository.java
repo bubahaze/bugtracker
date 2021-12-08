@@ -5,6 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+//TODO: probably delete this class as I do not use it!
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 

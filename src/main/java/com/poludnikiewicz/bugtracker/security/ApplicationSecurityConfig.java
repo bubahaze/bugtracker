@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,8 +27,7 @@ import static com.poludnikiewicz.bugtracker.security.ApplicationUserRole.*;
 // ^^ this enables using @PreAuthorize annotation replacing mvc/antMatchers
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    //@Autowired
-    //private UserDetailsService userDetailsService;
+
     private final PasswordEncoder passwordEncoder;
     private final ApplicationUserService userService;
 
@@ -38,16 +38,16 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         this.userService = userService;
     }
 
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService)
-                .passwordEncoder(passwordEncoder);
-
+//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+//        auth.userDetailsService(userService)
+//                .passwordEncoder(passwordEncoder);
+//
 //        auth.inMemoryAuthentication()
 //                .withUser("Admin").password(passwordEncoder.encode("adminPass")).roles("ADMIN")
 //                //.and().withUser("User").password("userPassword").roles("USER")
 //                //.and().withUser("Engineer").password("engineerPassword").roles("STAFF")
 //                .and().passwordEncoder(passwordEncoder);
-    }
+//    }
 
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -57,7 +57,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.mvcMatchers("manage/api/**").hasAnyRole(ADMIN.name(), STAFF.name())
                 //.mvcMatchers("/api/manage").hasRole("STAFF")
                 //.mvcMatchers("/api/bugtracker/*").hasRole("USER")
-                .mvcMatchers("index", "/css/**", "/js/**").permitAll()
+                .mvcMatchers("/api/registration/**", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 //.csrf().disable()//.headers().frameOptions().disable()
@@ -84,13 +84,22 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
     }
 
-//    @Bean
-//    public DaoAuthenticationProvider daoAuthenticationProvider() {
-//        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-//        provider.setPasswordEncoder(passwordEncoder);
-//        provider.setUserDetailsService(userService);
-//        return provider;
-//    } this will be for DB authentication later on
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(daoAuthenticationProvider());
+    }
+
+    /**
+     * An AuthenticationProvider implementation that retrieves user details from a UserDetailsService.
+     * @return DaoAuthenticationProvider
+     */
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(userService);
+        return provider;
+    }
 
 
 }

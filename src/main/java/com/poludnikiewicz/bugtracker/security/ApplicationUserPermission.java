@@ -1,5 +1,7 @@
 package com.poludnikiewicz.bugtracker.security;
 
+
+//TODO: probably delete this class as I do not use it!
 public enum ApplicationUserPermission {
 
     USER_READ("user:read"),

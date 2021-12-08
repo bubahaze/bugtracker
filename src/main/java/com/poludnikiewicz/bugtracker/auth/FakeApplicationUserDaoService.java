@@ -35,7 +35,7 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
                 new ApplicationUser(
                         "administrator",
                         passwordEncoder.encode("adminPass"),
-                        ApplicationUserRole.ADMIN.getGrantedAuthorities(),
+                        ApplicationUserRole.ADMIN,
                         true,
                         true,
                         true,
@@ -44,7 +44,7 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
                 new ApplicationUser(
                         "engineer",
                         passwordEncoder.encode("engineerPass"),
-                        ApplicationUserRole.STAFF.getGrantedAuthorities(),
+                        ApplicationUserRole.STAFF,
                         true,
                         true,
                         true,
@@ -53,7 +53,7 @@ public class FakeApplicationUserDaoService implements ApplicationUserDao {
                 new ApplicationUser(
                         "userOfApp",
                         passwordEncoder.encode("userPass"),
-                        ApplicationUserRole.USER.getGrantedAuthorities(),
+                        ApplicationUserRole.USER,
                         true,
                         true,
                         true,
