@@ -10,6 +10,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -30,8 +34,17 @@ public class ApplicationUser implements UserDetails {
     @SequenceGenerator(name="user_sequence", sequenceName = "user_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence")
     private Long id;
+    @NotBlank
     private String username;
+    @NotBlank
+    private String firstName;
+    @NotBlank
+    private String lastName;
+    @Email(message = "Please provide a valid email address")
+    @NotBlank
     private String email;
+    @NotEmpty
+    @Size(min = 8, message = "Please provide password with at least 8 characters")
     private String password;
     @Enumerated(EnumType.STRING)
     private ApplicationUserRole applicationUserRole;
@@ -40,10 +53,12 @@ public class ApplicationUser implements UserDetails {
     private boolean isCredentialsNonExpired;
     private boolean isEnabled;
 
-    public ApplicationUser(String username, String email, String password, ApplicationUserRole applicationUserRole,
+    public ApplicationUser(String username, String firstName, String lastName, String email, String password, ApplicationUserRole applicationUserRole,
                            boolean isAccountNonExpired, boolean isAccountNonLocked,
                            boolean isCredentialsNonExpired, boolean isEnabled) {
         this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.applicationUserRole = applicationUserRole;
@@ -53,13 +68,29 @@ public class ApplicationUser implements UserDetails {
         this.isEnabled = isEnabled;
     }
 
-    public ApplicationUser(String username, String password,
+    public ApplicationUser(String username, String firstName, String lastName, String email, String password) {
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.applicationUserRole = ApplicationUserRole.USER;
+        this.isAccountNonExpired = true;
+        this.isAccountNonLocked = false;
+        this.isCredentialsNonExpired = true;
+        this.isEnabled = false;
+
+    }
+
+    public ApplicationUser(String username, String firstName, String lastName, String password,
                            ApplicationUserRole applicationUserRole,
                            boolean isAccountNonExpired,
                            boolean isAccountNonLocked,
                            boolean isCredentialsNonExpired,
                            boolean isEnabled) {
         this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.password = password;
         this.applicationUserRole = applicationUserRole;
         this.isAccountNonExpired = isAccountNonExpired;
