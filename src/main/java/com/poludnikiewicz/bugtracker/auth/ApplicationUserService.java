@@ -1,5 +1,8 @@
 package com.poludnikiewicz.bugtracker.auth;
 
+import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
+import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,21 +11,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 @Service
+@AllArgsConstructor
 public class ApplicationUserService implements UserDetailsService {
 
-    //@Autowired
-    //private UserRepository userRepository;
     private final ApplicationUserDao applicationUserDao;
     private final PasswordEncoder passwordEncoder;
+    private final ConfirmationTokenService confirmationTokenService;
 
-    @Autowired
-    //qualifier in case of multiple implementations
-    public ApplicationUserService(ApplicationUserDao applicationUserDao,
-                                  PasswordEncoder passwordEncoder) {
-        this.applicationUserDao = applicationUserDao;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
@@ -41,7 +40,17 @@ public class ApplicationUserService implements UserDetailsService {
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         applicationUserDao.save(user);
-        return "it works";
+
+        String token = UUID.randomUUID().toString();
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(20), user);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
+        return token;
+    }
+
+
+    public int enableApplicationUser(String email) {
+        return applicationUserDao.enableApplicationUser(email);
     }
 
 //    public void save(User user) {
