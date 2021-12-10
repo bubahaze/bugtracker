@@ -3,8 +3,6 @@ package com.poludnikiewicz.bugtracker.auth;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,7 +32,10 @@ public class ApplicationUserService implements UserDetailsService {
                 .findByEmail(user.getEmail())
                 .isPresent();
 
-        if (userExists) {
+        if (userExists && user.isEnabled()) {
+            //TODO: check if attributes are the same ??
+            //TODO: if email not confirmed send confirmation email again
+
             throw new IllegalStateException("Looks like someone already uses this email");
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());

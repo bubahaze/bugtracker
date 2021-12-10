@@ -10,6 +10,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/registration")
 @AllArgsConstructor
+@Validated
 public class RegistrationController {
 
     @Autowired

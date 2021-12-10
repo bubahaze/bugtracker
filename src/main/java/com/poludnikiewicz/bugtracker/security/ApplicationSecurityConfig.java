@@ -31,17 +31,6 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         this.userService = userService;
     }
 
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(userService)
-//                .passwordEncoder(passwordEncoder);
-//
-//        auth.inMemoryAuthentication()
-//                .withUser("Admin").password(passwordEncoder.encode("adminPass")).roles("ADMIN")
-//                //.and().withUser("User").password("userPassword").roles("USER")
-//                //.and().withUser("Engineer").password("engineerPassword").roles("STAFF")
-//                .and().passwordEncoder(passwordEncoder);
-//    }
-
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
@@ -66,7 +55,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                     .logoutUrl("/logout")
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
+                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID", "remember-me")

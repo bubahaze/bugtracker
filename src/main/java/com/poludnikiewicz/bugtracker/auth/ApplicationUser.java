@@ -16,7 +16,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
 /**
  * Implementation of UserDetails enables creating and storing users
@@ -76,7 +75,7 @@ public class ApplicationUser implements UserDetails {
         this.password = password;
         this.applicationUserRole = ApplicationUserRole.USER;
         this.isAccountNonExpired = true;
-        this.isAccountNonLocked = false;
+        this.isAccountNonLocked = true;
         this.isCredentialsNonExpired = true;
         this.isEnabled = false;
 

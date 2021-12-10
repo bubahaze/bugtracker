@@ -14,7 +14,7 @@ import java.util.Optional;
  */
 
 @Repository
-@Transactional(readOnly = true) //?? registration tutorial 00:20:10
+@Transactional(readOnly = true)
 public interface ApplicationUserDao extends JpaRepository<ApplicationUser, Long> {
 
     //Optional<ApplicationUser> selectApplicationUserByUsername(String username);
@@ -24,8 +24,9 @@ public interface ApplicationUserDao extends JpaRepository<ApplicationUser, Long>
     @Transactional
     @Modifying
     @Query("UPDATE ApplicationUser a " +
-            "SET a.enabled = TRUE WHERE a.email = ?1")
+            "SET a.isEnabled = TRUE WHERE a.email = ?1")
     int enableApplicationUser(String email);
+
 
 
 

@@ -1,8 +1,7 @@
-package com.poludnikiewicz.bugtracker.service;
+package com.poludnikiewicz.bugtracker.bug;
 
-import com.poludnikiewicz.bugtracker.dao.Bug;
-import com.poludnikiewicz.bugtracker.dao.BugRepository;
-import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
+import com.poludnikiewicz.bugtracker.bug.Bug;
+import com.poludnikiewicz.bugtracker.bug.BugRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

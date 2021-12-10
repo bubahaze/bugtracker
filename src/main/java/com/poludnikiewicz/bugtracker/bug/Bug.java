@@ -1,4 +1,4 @@
-package com.poludnikiewicz.bugtracker.dao;
+package com.poludnikiewicz.bugtracker.bug;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -36,8 +36,8 @@ public class Bug implements Serializable {
     private String uniqueCode;
     @Column
     @JsonIgnore
-    private BugStatus status; //how to make it automatically REPORTED upon creating Bug by user -
-    //constructor? but what about id and unique code then ?
+    private BugStatus status; //TODO: how to make it automatically REPORTED upon creating Bug by user -
+    //TODO: constructor? but what about id and unique code then ? see Registration controller & appusers
 //    @Column
 //    @JsonIgnore
 //    private StaffMember assignedStaffMember; //should StaffMember extend User class ???

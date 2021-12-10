@@ -1,8 +1,8 @@
 package com.poludnikiewicz.bugtracker.api;
 
 
-import com.poludnikiewicz.bugtracker.dao.Bug;
-import com.poludnikiewicz.bugtracker.service.BugService;
+import com.poludnikiewicz.bugtracker.bug.Bug;
+import com.poludnikiewicz.bugtracker.bug.BugService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

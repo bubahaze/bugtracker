@@ -1,4 +1,4 @@
-package com.poludnikiewicz.bugtracker.dao;
+package com.poludnikiewicz.bugtracker.bug;
 
 public enum BugStatus {
     REPORTED,
