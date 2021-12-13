@@ -15,16 +15,17 @@ import javax.validation.constraints.Size;
 @EqualsAndHashCode
 @ToString
 public class RegistrationRequest {
-    @NotBlank
+    @NotBlank(message = "Username must not be blank")
+    @Size(min = 3, max = 20, message = "username must contain 3-20 characters")
     private final String username;
-    @NotBlank
+    @NotBlank(message = "First name must not be blank")
     private final String firstName;
-    @NotBlank
+    @NotBlank(message = "Last name must not be blank")
     private final String lastName;
-    @Email
-    @NotBlank
+    @Email(message = "Look like this is not a valid email")
+    @NotBlank(message = "Email must not be blank")
     private final String email;
-    @NotEmpty
-    @Size(min = 8)
+    @NotEmpty(message = "Password must not be empty")
+    @Size(min = 8, message = "Password must contain at least 8 characters")
     private final String password;
 }

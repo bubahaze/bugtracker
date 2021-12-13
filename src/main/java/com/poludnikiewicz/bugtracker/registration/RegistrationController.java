@@ -13,15 +13,12 @@ import javax.validation.Valid;
 @Validated
 public class RegistrationController {
 
-    @Autowired
+
     private RegistrationService registrationService;
 
     @PostMapping
     public String register(@Valid @RequestBody RegistrationRequest request) {
         return registrationService.register(request);
-
-        //TODO: think about validation, providing own class emailValidator? Better
-        //TODO: https://www.yawintutor.com/how-to-customize-default-error-message-using-controlleradvice-in-spring-boot-validation/
     }
 
     @GetMapping(path="confirm")

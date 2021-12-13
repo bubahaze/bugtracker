@@ -16,18 +16,11 @@ import java.time.LocalDateTime;
 public class RegistrationService {
 
     private final ApplicationUserService applicationUserService;
-    private final EmailValidator emailValidator;
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailSender emailSender;
 
 
     public String register(RegistrationRequest request) {
-
-        boolean isValidEmail = emailValidator.test(request.getEmail());
-
-        if (!isValidEmail) {
-            throw new IllegalStateException("email not valid");
-        }
 
         String token = applicationUserService.signUpUser(
                 new ApplicationUser(
@@ -66,7 +59,7 @@ public class RegistrationService {
         confirmationTokenService.setConfirmedAt(token);
         applicationUserService.enableApplicationUser(
                 confirmationToken.getApplicationUser().getEmail());
-        return "confirmed";
+        return "email confirmed";
     }
 
     private String buildEmail(String name, String link) {
