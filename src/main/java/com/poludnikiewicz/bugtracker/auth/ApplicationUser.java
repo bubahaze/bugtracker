@@ -33,17 +33,10 @@ public class ApplicationUser implements UserDetails {
     @SequenceGenerator(name="user_sequence", sequenceName = "user_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_sequence")
     private Long id;
-    @NotBlank
     private String username;
-    @NotBlank
     private String firstName;
-    @NotBlank
     private String lastName;
-    @Email(message = "Please provide a valid email address")
-    @NotBlank
     private String email;
-    @NotEmpty
-    @Size(min = 8, message = "Please provide password with at least 8 characters")
     private String password;
     @Enumerated(EnumType.STRING)
     private ApplicationUserRole applicationUserRole;
@@ -81,26 +74,26 @@ public class ApplicationUser implements UserDetails {
 
     }
 
-    public ApplicationUser(String username, String firstName, String lastName, String password,
-                           ApplicationUserRole applicationUserRole,
-                           boolean isAccountNonExpired,
-                           boolean isAccountNonLocked,
-                           boolean isCredentialsNonExpired,
-                           boolean isEnabled) {
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.password = password;
-        this.applicationUserRole = applicationUserRole;
-        this.isAccountNonExpired = isAccountNonExpired;
-        this.isAccountNonLocked = isAccountNonLocked;
-        this.isCredentialsNonExpired = isCredentialsNonExpired;
-        this.isEnabled = isEnabled;
-    }
+//    public ApplicationUser(String username, String firstName, String lastName, String password,
+//                           ApplicationUserRole applicationUserRole,
+//                           boolean isAccountNonExpired,
+//                           boolean isAccountNonLocked,
+//                           boolean isCredentialsNonExpired,
+//                           boolean isEnabled) {
+//        this.username = username;
+//        this.firstName = firstName;
+//        this.lastName = lastName;
+//        this.password = password;
+//        this.applicationUserRole = applicationUserRole;
+//        this.isAccountNonExpired = isAccountNonExpired;
+//        this.isAccountNonLocked = isAccountNonLocked;
+//        this.isCredentialsNonExpired = isCredentialsNonExpired;
+//        this.isEnabled = isEnabled;
+//    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority(applicationUserRole.name());
+        SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_" + applicationUserRole.name());
         return Collections.singletonList(grantedAuthority);
     }
 

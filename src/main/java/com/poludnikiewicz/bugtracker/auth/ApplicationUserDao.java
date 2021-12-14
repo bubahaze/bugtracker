@@ -21,6 +21,8 @@ public interface ApplicationUserDao extends JpaRepository<ApplicationUser, Long>
 
     Optional<ApplicationUser> findByEmail(String email);
 
+    Optional<ApplicationUser> findByUsername(String username);
+
     @Transactional
     @Modifying
     @Query("UPDATE ApplicationUser a " +

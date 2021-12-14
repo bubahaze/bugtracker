@@ -21,10 +21,10 @@ public class ApplicationUserService implements UserDetailsService {
     private final ConfirmationTokenService confirmationTokenService;
 
 
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        return applicationUserDao.findByEmail(email)
-                .orElseThrow(() ->new UsernameNotFoundException(email + " not found" ));
+        return applicationUserDao.findByUsername(username)
+                .orElseThrow(() ->new UsernameNotFoundException(username + " not found" ));
     }
 
     public String signUpUser(ApplicationUser user) {
@@ -32,11 +32,20 @@ public class ApplicationUserService implements UserDetailsService {
                 .findByEmail(user.getEmail())
                 .isPresent();
 
+        boolean usernameExists = applicationUserDao.findByUsername(user.getUsername()).isPresent();
+
+        if (usernameExists) {
+            throw new IllegalStateException("This username is taken. Try another one.");
+        }
+
         if (userExists && user.isEnabled()) {
             //TODO: check if attributes are the same ??
-            //TODO: if email not confirmed send confirmation email again
 
-            throw new IllegalStateException("Looks like someone already uses this email");
+
+            throw new IllegalStateException("Someone already uses this email");
+        } else if (userExists && !user.isEnabled()) {
+            //TODO: if email not confirmed send confirmation email again
+            throw new IllegalStateException("Email already registered");
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -53,8 +62,4 @@ public class ApplicationUserService implements UserDetailsService {
     public int enableApplicationUser(String email) {
         return applicationUserDao.enableApplicationUser(email);
     }
-
-//    public void save(User user) {
-//        userRepository.save(user);
-//    } uncommented because of the change from userRepository to ApplicationUserDao
 }
