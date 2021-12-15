@@ -23,7 +23,6 @@ public class ManagementController {
     @DeleteMapping("/bug/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBug(@PathVariable Long id) {
-        //question mark means it will not return any type in responseEntity
         service.deleteBug(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -35,8 +34,6 @@ public class ManagementController {
         Bug updatedBug = service.updateBug(bug, id);
         return new ResponseEntity<>(updatedBug, HttpStatus.OK);
     }
-
-    //TODO: is method that assigns staff member only needed ? or method that changes status ?
 
 
 }

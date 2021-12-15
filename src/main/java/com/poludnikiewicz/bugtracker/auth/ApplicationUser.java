@@ -10,17 +10,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
 
-/**
- * Implementation of UserDetails enables creating and storing users
- * in database instead of using inMemory
- */
 
 @Getter
 @Setter
@@ -73,23 +65,6 @@ public class ApplicationUser implements UserDetails {
         this.isEnabled = false;
 
     }
-
-//    public ApplicationUser(String username, String firstName, String lastName, String password,
-//                           ApplicationUserRole applicationUserRole,
-//                           boolean isAccountNonExpired,
-//                           boolean isAccountNonLocked,
-//                           boolean isCredentialsNonExpired,
-//                           boolean isEnabled) {
-//        this.username = username;
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.password = password;
-//        this.applicationUserRole = applicationUserRole;
-//        this.isAccountNonExpired = isAccountNonExpired;
-//        this.isAccountNonLocked = isAccountNonLocked;
-//        this.isCredentialsNonExpired = isCredentialsNonExpired;
-//        this.isEnabled = isEnabled;
-//    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

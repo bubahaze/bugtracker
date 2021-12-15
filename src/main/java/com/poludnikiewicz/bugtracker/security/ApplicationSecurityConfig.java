@@ -3,7 +3,6 @@ package com.poludnikiewicz.bugtracker.security;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -13,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @AllArgsConstructor
@@ -40,16 +38,15 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/user").hasRole(ApplicationUserRole.USER.name())
                 .mvcMatchers("/admin").hasRole(ApplicationUserRole.ADMIN.name())
                 .mvcMatchers("/staff").hasRole(ApplicationUserRole.STAFF.name())
-                .mvcMatchers("/api/registration/**", "/css/**", "/js/**").permitAll()
+                .mvcMatchers("/api/registration/*", "/css/*", "/js/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .successHandler(successHandler)
                 //.loginProcessingUrl("/perform_login")
-                //.defaultSuccessUrl("/dashboard", false)
                 .and()
-                .rememberMe()// false =user redirected to previous page they wanted to visit before being prompted to authenticate.
+                .rememberMe()
                 //.failureUrl("/login.html?error=true")
                 //.failureHandler(authenticationFailureHandler())
                 .and()
@@ -61,7 +58,6 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                     .deleteCookies("JSESSIONID", "remember-me")
                     .logoutSuccessUrl("/login")
                     .and()
-                    //.logoutSuccessHandler(logoutSuccessHandler())
         .httpBasic();
 
     }
@@ -75,7 +71,6 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .roles("ADMIN")
                 .and().withUser("memouser").password(passwordEncoder.encode("userpass")).roles("USER")
                .and().withUser("staffmem").password(passwordEncoder.encode("staffmem")).roles("STAFF");
-                //.and().passwordEncoder(passwordEncoder);
     }
 
     /**
