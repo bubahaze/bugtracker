@@ -6,6 +6,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+
 @ExtendWith(MockitoExtension.class)
 class RegistrationControllerTest {
 
@@ -14,17 +15,25 @@ class RegistrationControllerTest {
     @Mock
     private RegistrationRequest registrationRequest;
 
+
     @Test
     void should_return_register_method_of_registrationService() {
         RegistrationController registrationController = new RegistrationController(registrationService);
         //when
         registrationController.register(registrationRequest);
         //then
-        Mockito.verify(registrationService.register(registrationRequest));
+        Mockito.verify(registrationService).register(registrationRequest);
 
     }
 
     @Test
-    void confirm() {
+    void should_return_confirmToken_method_of_registrationService() {
+        RegistrationController registrationController = new RegistrationController(registrationService);
+        String token = "";
+        //when
+        registrationController.confirm(token);
+        //then
+        Mockito.verify(registrationService).confirmToken(token);
+
     }
 }
