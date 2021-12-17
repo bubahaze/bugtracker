@@ -38,7 +38,6 @@ public class RegistrationService {
         return "User successfully registered. A confirmation e-mail has been sent to you";
     }
 
-
     @Transactional
     public String confirmToken(String token) {
         ConfirmationToken confirmationToken = confirmationTokenService

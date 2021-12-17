@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
@@ -36,8 +35,8 @@ public class Bug {
     private String uniqueCode;
     @Column
     @JsonIgnore
-    private BugStatus status; //TODO: how to make it automatically REPORTED upon creating Bug by user -
-    //TODO: constructor? but what about id and unique code then ? see Registration controller & appusers
+    private BugStatus status; //TODO:  make it automatically REPORTED upon creating Bug by user -
+    //TODO: see Registration controller & appusers
 //    @Column
 //    @JsonIgnore
 //    private StaffMember assignedStaffMember; //should StaffMember extend User class ???
