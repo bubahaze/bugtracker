@@ -1,6 +1,6 @@
 # bugtracker :bug:
 Web app to report and track bugs. <br>
-👷‍♂️ Currently working on: **tests** 🧪 <br>
+👷‍♂️ Currently working on: **unit tests** 🧪 <br>
 🏭 Next issue: more features for users (attaching files, posting comments) <br>
 🗃️ The app contains so far:
 - access through REST API 🎛️
