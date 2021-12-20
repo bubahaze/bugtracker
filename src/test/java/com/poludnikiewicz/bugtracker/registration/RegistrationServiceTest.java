@@ -7,10 +7,7 @@ import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenRepository;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
 import org.aspectj.lang.annotation.After;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
@@ -20,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,11 +39,6 @@ class RegistrationServiceTest {
     private RegistrationService registrationService;
 
 
-    @AfterEach
-    void resetMock() {
-      //  reset(registrationService);
-    }
-
     @Test
     @DisplayName("Should return string upon register")
     void register() {
@@ -58,46 +51,75 @@ class RegistrationServiceTest {
     @DisplayName("Should throw exception when providing wrong token")
     void confirmToken_1() {
         String token = anyString();
-        //registrationService.confirmToken(token);
-       // BDDMockito.given(confirmationTokenService.getToken(token)).willThrow(new IllegalStateException());
-      //  BDDMockito.given(registrationService.confirmToken(token)).willThrow(new IllegalStateException());
-        //when(confirmationTokenService.getToken(token)).thenThrow(IllegalStateException.class);
-        //confirmationTokenService.getToken(token);
         assertThatThrownBy(() -> registrationService.confirmToken(token)).isInstanceOf(IllegalStateException.class)
                .hasMessageContaining("token not found");
         verify(confirmationTokenService, never()).setConfirmedAt(token);
         verify(applicationUserService, never()).enableApplicationUser(any());
 
-      //  assertThrows(IllegalStateException.class, () -> confirmationTokenService.getToken(token));
-
     }
 
-    @Test
-    @DisplayName("Should throw exception when email is already confirmed")
-    void confirmToken_2() {
+    @Nested
+    class RegistrationServiceTestNested {
 
-        //TODO: come back after gaining more experience to write working test
+        ConfirmationToken confirmationToken;
+        String token;
+
+        @BeforeEach
+        void setup() {
+            ApplicationUser user = mock(ApplicationUser.class);
+            token = UUID.randomUUID().toString();
+            confirmationToken = new ConfirmationToken(token, LocalDateTime.now(),
+                    LocalDateTime.now().plusMinutes(20), user);
+            confirmationTokenService.saveConfirmationToken(confirmationToken);
+            when(confirmationTokenService.getToken(token)).thenReturn(Optional.of(confirmationToken));
+        }
 
 
-        ConfirmationToken confirmationToken = mock(ConfirmationToken.class);
-        ConfirmationTokenService confirmationTokenService = mock(ConfirmationTokenService.class);
-        ApplicationUserService userService = mock(ApplicationUserService.class);
-        ApplicationUser user = mock(ApplicationUser.class);
-        BDDMockito.given(userService.signUpUser(user)).willReturn("randomized-token");
-        BDDMockito.given(confirmationTokenService.getToken("randomized-token")).willReturn(Optional.of(new ConfirmationToken()));
-       // BDDMockito.given(registrationService.confirmToken("randomized-token")).wi
-        //  when(userService.signUpUser(user)).thenReturn("randomized-token");
-        //  confirmationToken.setConfirmedAt(LocalDateTime.now());
-     //   doThrow(new IllegalStateException()).when(confirmationToken).getConfirmedAt();
-       // when(confirmationToken.getConfirmedAt()).thenThrow(IllegalStateException.class);
-       // assertThrows(IllegalStateException.class, () -> registrationService.confirmToken(anyString()));
-       assertThatThrownBy(() -> registrationService.confirmToken("randomized-token")).isInstanceOf(IllegalStateException.class)
-               .hasMessage("email already confirmed");
+        @Test
+        @DisplayName("Should throw exception when email is already confirmed")
+        void confirmToken_2() {
+            confirmationToken.setConfirmedAt(LocalDateTime.now());
 
-    }
+            assertThatThrownBy(() -> registrationService.confirmToken(token)).isInstanceOf(IllegalStateException.class)
+                    .hasMessage("email already confirmed");
+            verify(confirmationTokenService, never()).setConfirmedAt(token);
+            verify(applicationUserService, never()).enableApplicationUser(any());
 
-    @Test
-    void confirmToken_3() {
+        }
+
+        @Test
+        @DisplayName("Should throw exception when token has expired")
+        void confirmToken_3() {
+            confirmationToken.setExpiresAt(LocalDateTime.now().minusMinutes(2));
+            assertThatThrownBy(() -> registrationService.confirmToken(token)).isInstanceOf(IllegalStateException.class)
+                    .hasMessage("token expired");
+            verify(confirmationTokenService, never()).setConfirmedAt(token);
+            verify(applicationUserService, never()).enableApplicationUser(any());
+
+        }
+
+        @Test
+        @DisplayName("Should invoke setConfirmedAt method of ConfirmationTokenService class")
+        void confirmToken_4() {
+            registrationService.confirmToken(token);
+            verify(confirmationTokenService).setConfirmedAt(token);
+        }
+
+        @Test
+        @DisplayName("Should invoke enableApplicationUser method of ApplicationUserService class")
+        void confirmToken_5() {
+            registrationService.confirmToken(token);
+            verify(applicationUserService).enableApplicationUser(confirmationToken.getApplicationUser().getEmail());
+
+        }
+
+        @Test
+        @DisplayName("Should return string 'email confirmed'")
+        void confirmToken_6() {
+            String expected = "email confirmed";
+            String actual = registrationService.confirmToken(token);
+            assertEquals(expected, actual);
+        }
 
     }
 }
