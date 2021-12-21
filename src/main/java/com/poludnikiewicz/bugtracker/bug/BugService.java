@@ -2,6 +2,7 @@ package com.poludnikiewicz.bugtracker.bug;
 
 import com.poludnikiewicz.bugtracker.bug.Bug;
 import com.poludnikiewicz.bugtracker.bug.BugRepository;
+import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,7 @@ public class BugService {
     }
 
     public Bug updateBug(Bug bug, Long id) {
-        Bug bugToUpdate = findById(id).get();
+        Bug bugToUpdate = findById(id);
         bugToUpdate.setSummary(bug.getSummary());
         bugToUpdate.setProject(bug.getProject());
         bugToUpdate.setDescription(bug.getDescription());
@@ -47,10 +48,9 @@ public class BugService {
         return bugRepo.findAll();
     }
 
-    public Optional<Bug> findById(Long id) {
-        //return type Optional instead of type Bug?
-        return bugRepo.findById(id);
-                //.orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found"));
+    public Bug findById(Long id) {
+        return bugRepo.findById(id)
+                .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found"));
     }
 
     public Collection<Bug> findByProject(String project) {

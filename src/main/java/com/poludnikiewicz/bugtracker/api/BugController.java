@@ -31,8 +31,7 @@ public class BugController {
 
     @GetMapping("/bug/{id}")
     public ResponseEntity<Bug> showById(@PathVariable Long id) {
-        Bug bug = service.findById(id)
-                .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found"));
+        Bug bug = service.findById(id);
         return new ResponseEntity<>(bug, HttpStatus.OK);
     }
 
