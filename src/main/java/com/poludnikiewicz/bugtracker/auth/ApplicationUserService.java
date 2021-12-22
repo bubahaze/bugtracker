@@ -38,14 +38,8 @@ public class ApplicationUserService implements UserDetailsService {
             throw new IllegalStateException("This username is taken. Try another one.");
         }
 
-        if (userExists && user.isEnabled()) {
-            //TODO: check if attributes are the same ??
-
-
-            throw new IllegalStateException("Someone already uses this email");
-        } else if (userExists && !user.isEnabled()) {
-            //TODO: if email not confirmed send confirmation email again
-            throw new IllegalStateException("Email already registered");
+        if (userExists & user.isEnabled()) {
+            throw new IllegalStateException("Email already registered.");
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);

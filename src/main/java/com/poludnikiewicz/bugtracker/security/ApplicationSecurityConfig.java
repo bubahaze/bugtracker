@@ -38,7 +38,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/user").hasRole(ApplicationUserRole.USER.name())
                 .mvcMatchers("/admin").hasRole(ApplicationUserRole.ADMIN.name())
                 .mvcMatchers("/staff").hasRole(ApplicationUserRole.STAFF.name())
-                .mvcMatchers("/api/registration/*", "/css/*", "/js/*").permitAll()
+                .mvcMatchers("/api/registration/**", "/css/*", "/js/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()

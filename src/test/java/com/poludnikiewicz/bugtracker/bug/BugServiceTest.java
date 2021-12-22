@@ -1,16 +1,13 @@
 package com.poludnikiewicz.bugtracker.bug;
 
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,8 +74,11 @@ class BugServiceTest {
     @DisplayName("Should throw BugNotFoundException if Bug with provided id not present")
     void findById_2() {
         Long id = 1432L;
-      assertThrows(BugNotFoundException.class, () -> service.findById(id),
-              () -> String.format("Bug with id %d not found", id));
+      Exception exception = assertThrows(BugNotFoundException.class, () -> service.findById(id));
+        String expectedMessage = String.format("Bug with id %d not found", id);
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
