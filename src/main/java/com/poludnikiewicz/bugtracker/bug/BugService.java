@@ -25,6 +25,8 @@ public class BugService {
 
     public Bug addBug(Bug bug) {
         bug.setUniqueCode(UUID.randomUUID().toString());
+        bug.setPriority(BugPriority.UNSET);
+        bug.setStatus(BugStatus.REPORTED);
         return bugRepo.save(bug);
     }
 
