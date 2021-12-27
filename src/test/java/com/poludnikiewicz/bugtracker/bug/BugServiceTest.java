@@ -26,16 +26,18 @@ class BugServiceTest {
     @DisplayName("Should set UUID code for Bug")
     void addBug_1() {
         Bug bug = new Bug();
-        service.addBug(bug);
+        //service.addBug(bug); rewrite method and/or test
         assertNotNull(bug.getUniqueCode());
+        fail();
     }
 
     @Test
     @DisplayName("Should return save method of BugRepository")
     void addBug_2() {
         Bug bug = new Bug();
-        service.addBug(bug);
+        //service.addBug(bug); REWRITE method and/or test
         verify(repository).save(bug);
+        fail();
     }
 
     @Test

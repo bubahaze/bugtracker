@@ -1,39 +1,103 @@
 package com.poludnikiewicz.bugtracker.api;
 
 
+import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
+import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.bug.Bug;
+import com.poludnikiewicz.bugtracker.bug.BugPriority;
 import com.poludnikiewicz.bugtracker.bug.BugService;
+import com.poludnikiewicz.bugtracker.bug.BugStatus;
+import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/manage/api")
+@RequestMapping("/manage/api/bug")
+@AllArgsConstructor
+@Validated
 public class ManagementController {
 
-    private final BugService service;
+    private final BugService bugService;
+    private final ApplicationUserService userService;
 
-    @Autowired
-    public ManagementController(BugService service) {
-        this.service = service;
+    @GetMapping("/bug/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<Bug> showById(@PathVariable Long id) {
+        Bug bug = bugService.findById(id);
+        return new ResponseEntity<>(bug, HttpStatus.OK);
     }
 
-    @DeleteMapping("/bug/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBug(@PathVariable Long id) {
-        service.deleteBug(id);
+        bugService.deleteBug(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping("/bug/{id}")
+
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<Bug> updateBug(@RequestBody Bug bug, @PathVariable Long id) {
 
-        Bug updatedBug = service.updateBug(bug, id);
-        return new ResponseEntity<>(updatedBug, HttpStatus.OK);
+        Bug toUpdate = bugService.updateBug(bug, id);
+        return new ResponseEntity<>(toUpdate, HttpStatus.OK);
     }
 
+    @PatchMapping("/assign/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<Bug> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
+        Bug toAssign = bugService.findById(id);
+        ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
+        boolean isStaffOrAdmin = staffAssignee.getApplicationUserRole().name().equals("STAFF") ||
+                staffAssignee.getApplicationUserRole().name().equals("ADMIN");
+        if (isStaffOrAdmin) {
+            toAssign.setAssignedStaffMember(staffAssignee);
+            toAssign.setStatus(BugStatus.ASSIGNED);
+        } else {
+            throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
+        }
+        return new ResponseEntity<>(toAssign, HttpStatus.OK);
+    }
+
+    @PatchMapping("/setPriority/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<Bug> setPriorityOfBug(@RequestParam BugPriority priority, @PathVariable Long id) {
+        Bug toSetPriority = bugService.findById(id);
+        toSetPriority.setPriority(priority);
+
+        return new ResponseEntity<>(toSetPriority, HttpStatus.OK);
+    }
+
+    @PatchMapping("/setRole")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApplicationUser> setRoleOfApplicationUser(@RequestParam String username,
+                                                                    @Valid @RequestParam ApplicationUserRole role) {
+        ApplicationUser toSetRole = (ApplicationUser) userService.loadUserByUsername(username);
+        toSetRole.setApplicationUserRole(role);
+        userService.saveApplicationUser(toSetRole);
+
+
+        return new ResponseEntity<>(toSetRole, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<Bug> setStatusOfBug(@PathVariable Long id, @RequestParam BugStatus status) {
+        Bug toSetStatus = bugService.findById(id);
+        toSetStatus.setStatus(status);
+//
+//        return new ResponseEntity<>(toSetStatus, HttpStatus.OK);
+
+        return new ResponseEntity<>(toSetStatus, HttpStatus.OK);
+    }
 
 }

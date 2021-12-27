@@ -3,20 +3,25 @@ package com.poludnikiewicz.bugtracker.api;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.bug.Bug;
+import com.poludnikiewicz.bugtracker.bug.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.BugService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Collection;
 import java.util.List;
 
 @RestController
 @RequestMapping("/bugtracker/api")
+@Validated
 public class BugController {
 
     private final BugService service;
@@ -27,14 +32,15 @@ public class BugController {
     }
 
     @GetMapping("/bug")
+    // should it be accessible for all users ?
     public ResponseEntity<List<Bug>> listAllBugs() {
         List<Bug> allBugs = service.findAllBugs();
         return new ResponseEntity<>(allBugs, HttpStatus.OK);
     }
 
-    @GetMapping("/bug/{id}")
-    public ResponseEntity<Bug> showById(@PathVariable Long id) {
-        Bug bug = service.findById(id);
+    @GetMapping("/bug/{uniqueCode}")
+    public ResponseEntity<Bug> showByUniqueCode(@PathVariable String uniqueCode) {
+        Bug bug = service.findByUniqueCode(uniqueCode);
         return new ResponseEntity<>(bug, HttpStatus.OK);
     }
 
@@ -45,13 +51,16 @@ public class BugController {
 
     }
 
-    @PostMapping("/new")
-    public ResponseEntity<Bug> addBug(@RequestBody Bug bug, Authentication authentication) {
-        UserDetails userDetailsOfReporter = (UserDetails) authentication.getPrincipal();
-        bug.setUsernameOfReporterOfBug(userDetailsOfReporter.getUsername());
-        Bug newBug = service.addBug(bug);
+    //TODO: getMapping searching other params
 
-       return new ResponseEntity<>(newBug, HttpStatus.CREATED);
+    @PostMapping("/new")
+    public ResponseEntity<String> postBug(@Valid @RequestBody BugRequest bug, Authentication authentication) {
+        UserDetails userDetailsOfReporter = (UserDetails) authentication.getPrincipal();
+        String reporterUsername = userDetailsOfReporter.getUsername();
+       String uniqueCode = service.addBug(bug, reporterUsername);
+
+       return new ResponseEntity<>(String.format("Bug successfully reported. The unique ID of reported bug is: %s", uniqueCode),
+               HttpStatus.CREATED);
     }
 
 

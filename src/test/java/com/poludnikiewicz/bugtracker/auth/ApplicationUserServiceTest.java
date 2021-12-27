@@ -7,15 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import static org.assertj.core.api.Assertions.*;
 
-import javax.mail.MessagingException;
 import java.util.Optional;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -24,7 +20,7 @@ import static org.mockito.Mockito.*;
 class ApplicationUserServiceTest {
 
     @Mock
-    private ApplicationUserDao applicationUserDao;
+    private ApplicationUserRepository applicationUserRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -37,9 +33,9 @@ class ApplicationUserServiceTest {
     void loadUserByUsername_1() {
         ApplicationUser user = mock(ApplicationUser.class);
         String username = "username";
-        when(applicationUserDao.findByUsername(username)).thenReturn(Optional.of(user));
+        when(applicationUserRepository.findByUsername(username)).thenReturn(Optional.of(user));
         userService.loadUserByUsername(username);
-        verify(applicationUserDao).findByUsername(username);
+        verify(applicationUserRepository).findByUsername(username);
     }
 
     @Test
@@ -57,27 +53,27 @@ class ApplicationUserServiceTest {
     @DisplayName("Should throw IllegalStateException when username exists")
     void signUpUser_1() {
         ApplicationUser user = mock(ApplicationUser.class);
-        when(applicationUserDao.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+        when(applicationUserRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
         Exception exception = assertThrows(IllegalStateException.class, () -> userService.signUpUser(user));
         String expectedMessage = "This username is taken. Try another one.";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
-        verify(applicationUserDao, never()).save(user);
+        verify(applicationUserRepository, never()).save(user);
     }
 
     @Test
     @DisplayName("Should throw IllegalStateException when email already registered")
     void signUpUser_2() {
         ApplicationUser user = mock(ApplicationUser.class);
-        when(applicationUserDao.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(applicationUserRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
         when(user.isEnabled()).thenReturn(true);
         Exception exception = assertThrows(IllegalStateException.class, () -> userService.signUpUser(user));
         String expectedMessage = "Email already registered";
         String actualMessage = exception.getMessage();
 
         assertTrue(actualMessage.contains(expectedMessage));
-        verify(applicationUserDao, never()).save(user);
+        verify(applicationUserRepository, never()).save(user);
     }
 
     @Test
@@ -93,7 +89,7 @@ class ApplicationUserServiceTest {
     void signUpUser_4() {
         ApplicationUser user = mock(ApplicationUser.class);
         userService.signUpUser(user);
-        verify(applicationUserDao).save(user);
+        verify(applicationUserRepository).save(user);
     }
 
     @Test
@@ -109,6 +105,6 @@ class ApplicationUserServiceTest {
     void enableApplicationUser() {
         String email = "email@email.com";
         userService.enableApplicationUser(email);
-        verify(applicationUserDao).enableApplicationUser(email);
+        verify(applicationUserRepository).enableApplicationUser(email);
     }
 }

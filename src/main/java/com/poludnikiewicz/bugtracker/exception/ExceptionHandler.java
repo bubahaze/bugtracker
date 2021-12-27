@@ -36,6 +36,20 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {IllegalAccessException.class})
+    public ResponseEntity<Object> handleIllegalAccessException(IllegalAccessException ex) {
+        LOGGER.error("Illegal access exception: ", ex.getMessage());
+
+        return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {BugNotFoundException.class})
+    public ResponseEntity<Object> BugNotFoundException(BugNotFoundException ex) {
+        LOGGER.error("bug not found exception: ", ex.getMessage());
+
+        return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         List<String> details = new ArrayList<>();

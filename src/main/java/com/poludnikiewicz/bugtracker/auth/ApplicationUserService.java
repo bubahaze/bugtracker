@@ -16,23 +16,23 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ApplicationUserService implements UserDetailsService {
 
-    private final ApplicationUserDao applicationUserDao;
+    private final ApplicationUserRepository applicationUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final ConfirmationTokenService confirmationTokenService;
 
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        return applicationUserDao.findByUsername(username)
+        return applicationUserRepository.findByUsername(username)
                 .orElseThrow(() ->new UsernameNotFoundException(username + " not found" ));
     }
 
     public String signUpUser(ApplicationUser user) {
-        boolean userExists = applicationUserDao
+        boolean userExists = applicationUserRepository
                 .findByEmail(user.getEmail())
                 .isPresent();
 
-        boolean usernameExists = applicationUserDao.findByUsername(user.getUsername()).isPresent();
+        boolean usernameExists = applicationUserRepository.findByUsername(user.getUsername()).isPresent();
 
         if (usernameExists) {
             throw new IllegalStateException("This username is taken. Try another one.");
@@ -43,7 +43,7 @@ public class ApplicationUserService implements UserDetailsService {
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
-        applicationUserDao.save(user);
+        applicationUserRepository.save(user);
 
         String token = UUID.randomUUID().toString();
         ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(),
@@ -54,6 +54,10 @@ public class ApplicationUserService implements UserDetailsService {
 
 
     public int enableApplicationUser(String email) {
-        return applicationUserDao.enableApplicationUser(email);
+        return applicationUserRepository.enableApplicationUser(email);
+    }
+
+    public ApplicationUser saveApplicationUser(ApplicationUser user) {
+        return applicationUserRepository.save(user);
     }
 }
