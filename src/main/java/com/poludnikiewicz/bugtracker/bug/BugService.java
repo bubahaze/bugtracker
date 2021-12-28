@@ -1,17 +1,13 @@
 package com.poludnikiewicz.bugtracker.bug;
 
-import com.poludnikiewicz.bugtracker.bug.Bug;
-import com.poludnikiewicz.bugtracker.bug.BugRepository;
+import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -26,12 +22,18 @@ public class BugService {
 
     public String addBug(BugRequest request, String reporterUsername) {
 
-        //TODO: build Bug through factory not through overbose constructor and rewrite test for this method
-
         String uniqueCode = UUID.randomUUID().toString();
-        Bug bug = new Bug(request.getSummary(), request.getProject(), request.getDescription(),
-                uniqueCode, BugStatus.REPORTED,
-                request.getOpSystemWhereBugOccured(), reporterUsername, BugPriority.UNSET);
+        Bug bug = Bug.builder()
+                .summary(request.getSummary())
+                .project(request.getProject())
+                .description(request.getDescription())
+                .uniqueCode(uniqueCode)
+                .status(BugStatus.REPORTED)
+                .opSystemWhereBugOccured(request.getOpSystemWhereBugOccured())
+                .usernameOfReporterOfBug(reporterUsername)
+                .priority(BugPriority.UNSET)
+                .build();
+
         bugRepo.save(bug);
         return uniqueCode;
     }
@@ -44,6 +46,7 @@ public class BugService {
             bugToUpdate.setOpSystemWhereBugOccured(bug.getOpSystemWhereBugOccured());
             bugToUpdate.setPriority(bug.getPriority());
             bugToUpdate.setStatus(bug.getStatus());
+            bugToUpdate.setAssignedStaffMember(bug.getAssignedStaffMember());
 
         return bugRepo.save(bugToUpdate);
     }

@@ -1,4 +1,4 @@
-package com.poludnikiewicz.bugtracker.bug;
+package com.poludnikiewicz.bugtracker.bug.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

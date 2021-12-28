@@ -1,6 +1,12 @@
 package com.poludnikiewicz.bugtracker.api;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.bug.Bug;
@@ -28,6 +34,7 @@ public class ManagementController {
 
     private final BugService bugService;
     private final ApplicationUserService userService;
+    private final ObjectMapper objectMapper;
 
     @GetMapping("/bug/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
@@ -54,7 +61,7 @@ public class ManagementController {
 
     @PatchMapping("/assign/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Bug> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
+    public ResponseEntity<?> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
         Bug toAssign = bugService.findById(id);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
         boolean isStaffOrAdmin = staffAssignee.getApplicationUserRole().name().equals("STAFF") ||
@@ -62,20 +69,21 @@ public class ManagementController {
         if (isStaffOrAdmin) {
             toAssign.setAssignedStaffMember(staffAssignee);
             toAssign.setStatus(BugStatus.ASSIGNED);
+            bugService.updateBug(toAssign, id);
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
-        return new ResponseEntity<>(toAssign, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/setPriority/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<Bug> setPriorityOfBug(@RequestParam BugPriority priority, @PathVariable Long id) {
-        Bug toSetPriority = bugService.findById(id);
-        toSetPriority.setPriority(priority);
-
-        return new ResponseEntity<>(toSetPriority, HttpStatus.OK);
-    }
+//    @PatchMapping("/setPriority/{id}")
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+//    public ResponseEntity<Bug> setPriorityOfBug(@RequestParam BugPriority priority, @PathVariable Long id) {
+//        Bug toSetPriority = bugService.findById(id);
+//        toSetPriority.setPriority(priority);
+//
+//        return new ResponseEntity<>(toSetPriority, HttpStatus.OK);
+//    }
 
     @PatchMapping("/setRole")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -85,19 +93,40 @@ public class ManagementController {
         toSetRole.setApplicationUserRole(role);
         userService.saveApplicationUser(toSetRole);
 
-
+        //TODO: mapping to ApplicationUserResponse ?
         return new ResponseEntity<>(toSetRole, HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<Bug> setStatusOfBug(@PathVariable Long id, @RequestParam BugStatus status) {
-        Bug toSetStatus = bugService.findById(id);
-        toSetStatus.setStatus(status);
+//    @PatchMapping("/{id}")
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+//    public ResponseEntity<Bug> setStatusOfBug(@PathVariable Long id, @RequestParam BugStatus status) {
+//        Bug toSetStatus = bugService.findById(id);
+//        toSetStatus.setStatus(status);
+////
+////        return new ResponseEntity<>(toSetStatus, HttpStatus.OK);
 //
 //        return new ResponseEntity<>(toSetStatus, HttpStatus.OK);
+//    }
 
-        return new ResponseEntity<>(toSetStatus, HttpStatus.OK);
+    @PatchMapping(path = "/{id}", consumes = "application/json-patch+json")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<?> updateBug(@PathVariable Long id, @RequestBody JsonPatch patch) {
+        try {
+            Bug bug = bugService.findById(id);
+            Bug bugPatched = applyPatchToBug(patch, bug);
+            bugService.updateBug(bugPatched, id);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (JsonPatchException | JsonProcessingException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Bug applyPatchToBug(JsonPatch patch, Bug targetBug) throws JsonPatchException,
+            JsonProcessingException {
+        //objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        JsonNode patched = patch.apply(objectMapper.convertValue(targetBug, JsonNode.class));
+        return objectMapper.treeToValue(patched, Bug.class);
     }
 
 }
