@@ -1,16 +1,11 @@
 package com.poludnikiewicz.bugtracker.bug.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
-@Getter
+@Data
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
 public class BugRequest {
 
     @NotBlank(message = "Please provide the summary of issue")
