@@ -1,15 +1,11 @@
 package com.poludnikiewicz.bugtracker.auth;
 
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
-@Getter
+@Data
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
+@NoArgsConstructor
 public class ApplicationUserResponse {
 
     private String username;
