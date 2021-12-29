@@ -47,7 +47,7 @@ public class ManagementController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBug(@PathVariable Long id) {
         bugService.deleteBug(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
@@ -73,7 +73,7 @@ public class ManagementController {
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 //    @PatchMapping("/setPriority/{id}")
@@ -115,7 +115,7 @@ public class ManagementController {
             Bug bug = bugService.findById(id);
             Bug bugPatched = applyPatchToBug(patch, bug);
             bugService.updateBug(bugPatched, id);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (JsonPatchException | JsonProcessingException e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
