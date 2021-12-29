@@ -19,7 +19,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Bug {
 
     @Id
@@ -43,14 +42,11 @@ public class Bug {
     @Enumerated(EnumType.STRING)
     private BugStatus status;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="application_user_id")
     private ApplicationUser assignedStaffMember;
 
-   // private List<Bug> duplicates;
-    // List of bugs that have been marked a duplicate of the bug currently being viewed.
-
-    private String opSystemWhereBugOccured;
+    private String opSystemWhereBugOccurred;
 
     private String usernameOfReporterOfBug;
 
@@ -63,16 +59,4 @@ public class Bug {
 
     //TODO: comments and comments tag features
 
-
-//    public Bug(String summary, String project, String description, String uniqueCode, BugStatus status,
-//               String opSystemWhereBugOccured, String usernameOfReporterOfBug, BugPriority priority) {
-//        this.summary = summary;
-//        this.project = project;
-//        this.description = description;
-//        this.uniqueCode = uniqueCode;
-//        this.status = status;
-//        this.opSystemWhereBugOccured = opSystemWhereBugOccured;
-//        this.usernameOfReporterOfBug = usernameOfReporterOfBug;
-//        this.priority = priority;
-//    }
 }
