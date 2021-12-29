@@ -1,5 +1,6 @@
 package com.poludnikiewicz.bugtracker.auth;
 
+import com.poludnikiewicz.bugtracker.exception.ApplicationUserNotFoundException;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -59,5 +62,28 @@ public class ApplicationUserService implements UserDetailsService {
 
     public ApplicationUser saveApplicationUser(ApplicationUser user) {
         return applicationUserRepository.save(user);
+    }
+
+    public List<ApplicationUserResponse> findAllUsers() {
+        return applicationUserRepository.findAll()
+                .stream()
+                .map(this::mapToApplicationUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    public ApplicationUserResponse findApplicationUserResponseById(Long id) {
+
+        ApplicationUser applicationUser = applicationUserRepository.findById(id)
+                .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with id %d not found.", id)));
+        return mapToApplicationUserResponse(applicationUser);
+    }
+
+    private ApplicationUserResponse mapToApplicationUserResponse(ApplicationUser user) {
+        ApplicationUserResponse userResponse = new ApplicationUserResponse();
+        userResponse.setUsername(user.getUsername());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setApplicationUserRole(user.getApplicationUserRole());
+
+        return userResponse;
     }
 }
