@@ -4,6 +4,7 @@ package com.poludnikiewicz.bugtracker.api;
 import com.poludnikiewicz.bugtracker.bug.Bug;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.BugService;
+import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,9 +30,8 @@ public class BugController {
     }
 
     @GetMapping("/bug")
-    // should it be accessible for all users ?
-    public ResponseEntity<List<Bug>> listAllBugs() {
-        List<Bug> allBugs = service.findAllBugs();
+    public ResponseEntity<List<BugResponse>> showAllBugs() {
+        List<BugResponse> allBugs = service.findAllBugs();
         return new ResponseEntity<>(allBugs, HttpStatus.OK);
     }
 
