@@ -3,17 +3,14 @@ package com.poludnikiewicz.bugtracker.bug.dto;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.bug.BugPriority;
 import com.poludnikiewicz.bugtracker.bug.BugStatus;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
+@Data
 @AllArgsConstructor
-@EqualsAndHashCode
-@ToString
+@NoArgsConstructor
 public class BugResponse {
 
     private String summary;
@@ -30,7 +27,8 @@ public class BugResponse {
 
     private BugStatus status;
 
-    private ApplicationUser assignedStaffMember;
+    //private ApplicationUser assignedStaffMember;
+    private String usernameOfAssignee;
 
     private String opSystemWhereBugOccured;
 
