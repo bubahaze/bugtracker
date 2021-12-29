@@ -3,7 +3,6 @@ package com.poludnikiewicz.bugtracker.api;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserResponse;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
-import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
