@@ -39,13 +39,21 @@ public class UserManagementController {
 
     @PatchMapping("/setRole")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> setRoleOfApplicationUser(@RequestParam String username,
+    public ResponseEntity<String> setRoleOfApplicationUser(@RequestParam String username,
                                                                     @Valid @RequestParam ApplicationUserRole role) {
         ApplicationUser toSetRole = (ApplicationUser) userService.loadUserByUsername(username);
         toSetRole.setApplicationUserRole(role);
         userService.saveApplicationUser(toSetRole);
 
-        //TODO: mapping to ApplicationUserResponse ?
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(String.format("%s has now the role of %s", username, role), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<String> deleteApplicationUser(@PathVariable Long id) {
+        userService.deleteApplicationUserById(id);
+
+        return new ResponseEntity<>(String.format("Application User with id %d successfully deleted", id),
+                HttpStatus.OK);
     }
 }
