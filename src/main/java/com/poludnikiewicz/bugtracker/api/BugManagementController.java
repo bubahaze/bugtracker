@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +41,7 @@ public class BugManagementController {
 
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Bug> updateBug(@RequestBody Bug bug, @PathVariable Long id) {
 
         Bug toUpdate = bugService.updateBug(bug, id);
@@ -49,20 +50,34 @@ public class BugManagementController {
 
     @PatchMapping("/assign/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
+    public ResponseEntity<String> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
         Bug toAssign = bugService.findById(id);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
         boolean isStaffOrAdmin = staffAssignee.getApplicationUserRole().name().equals("STAFF") ||
                 staffAssignee.getApplicationUserRole().name().equals("ADMIN");
         if (isStaffOrAdmin) {
-            toAssign.setAssignedStaffMember(staffAssignee);
-            toAssign.setStatus(BugStatus.ASSIGNED);
-            bugService.saveBug(toAssign);
+            assignToBugAndChangeBugStatus(toAssign, staffAssignee);
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
         return new ResponseEntity<>(String.format("Bug with id %d has been assigned to %s", id, staffAssigneeUsername),
                 HttpStatus.NO_CONTENT);
+    }
+
+    @PatchMapping("/staff/assign/{id}")
+    @PreAuthorize("hasRole('ROLE_STAFF')")
+    public ResponseEntity<String> assignBugToHimself(@RequestParam String staffAssigneeUsername, @PathVariable Long id,
+                                                     Authentication authentication) {
+        String usernameOfPrincipal = authentication.getName();
+        if (usernameOfPrincipal.equals(staffAssigneeUsername)) {
+            Bug toAssign = bugService.findById(id);
+            ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
+            assignToBugAndChangeBugStatus(toAssign, staffAssignee);
+        } else {
+            throw new IllegalStateException("Staff member can assign the bug only to him/herself");
+        }
+        return new ResponseEntity<>(String.format("Bug with id %d successfully assigned to you", id), HttpStatus.OK);
+
     }
 
     @PatchMapping("/setPriority/{id}")
@@ -84,6 +99,12 @@ public class BugManagementController {
         bugService.saveBug(toSetStatus);
 
         return new ResponseEntity<>(String.format("Status successfully set to %s", status), HttpStatus.OK);
+    }
+
+    private void assignToBugAndChangeBugStatus(Bug bug, ApplicationUser applicationUser) {
+        bug.setAssignedStaffMember(applicationUser);
+        bug.setStatus(BugStatus.ASSIGNED);
+        bugService.saveBug(bug);
     }
 
 }
