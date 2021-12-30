@@ -43,13 +43,13 @@ public class BugService {
 
     public Bug updateBug(Bug bug, long id) {
         Bug bugToUpdate = findById(id);
-            bugToUpdate.setSummary(bug.getSummary());
-            bugToUpdate.setProject(bug.getProject());
-            bugToUpdate.setDescription(bug.getDescription());
-            bugToUpdate.setOpSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred());
-            bugToUpdate.setPriority(bug.getPriority());
-            bugToUpdate.setStatus(bug.getStatus());
-            bugToUpdate.setAssignedStaffMember(bug.getAssignedStaffMember());
+        bugToUpdate.setSummary(bug.getSummary());
+        bugToUpdate.setProject(bug.getProject());
+        bugToUpdate.setDescription(bug.getDescription());
+        bugToUpdate.setOpSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred());
+        bugToUpdate.setPriority(bug.getPriority());
+        bugToUpdate.setStatus(bug.getStatus());
+        bugToUpdate.setAssignedStaffMember(bug.getAssignedStaffMember());
 
         return bugRepo.save(bugToUpdate);
     }
@@ -84,7 +84,7 @@ public class BugService {
     }
 
     public List<BugResponse> findAllBugs() {
-        return ( bugRepo
+        return (bugRepo
                 .findAll())
                 .stream()
                 .map(this::mapToBugResponse)
@@ -108,6 +108,12 @@ public class BugService {
             bugResponse.setUsernameOfAssignee(assignee.getUsername());
         }
         return bugResponse;
+    }
+
+    public List<BugResponse> findAllBugsAssignedToPrincipal(String username) {
+        return bugRepo.findAllBugsAssignedToPrincipal(username).stream()
+                .map(this::mapToBugResponse)
+                .collect(Collectors.toList());
     }
 
     //TODO: QUERY METHODS

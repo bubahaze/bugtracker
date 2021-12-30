@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/manage/api/bug")
 @AllArgsConstructor
@@ -30,6 +32,14 @@ public class BugManagementController {
     public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
         BugResponse bug = bugService.findBugResponseById(id);
         return new ResponseEntity<>(bug, HttpStatus.OK);
+    }
+
+    @GetMapping("/assigned")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<List<BugResponse>> showBugsAssignedToPrincipal(Authentication authentication) {
+        List<BugResponse> bugs = bugService.findAllBugsAssignedToPrincipal(authentication.getName());
+
+        return new ResponseEntity<>(bugs, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
