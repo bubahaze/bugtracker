@@ -71,6 +71,11 @@ public class ApplicationUserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteApplicationUserById(Long id) {
+        applicationUserRepository.deleteById(id);
+
+    }
+
     public ApplicationUserResponse findApplicationUserResponseById(Long id) {
 
         ApplicationUser applicationUser = applicationUserRepository.findById(id)
