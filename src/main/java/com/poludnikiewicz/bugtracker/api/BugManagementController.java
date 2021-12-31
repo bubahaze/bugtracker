@@ -7,6 +7,7 @@ import com.poludnikiewicz.bugtracker.bug.Bug;
 import com.poludnikiewicz.bugtracker.bug.BugPriority;
 import com.poludnikiewicz.bugtracker.bug.BugService;
 import com.poludnikiewicz.bugtracker.bug.BugStatus;
+import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -52,10 +53,11 @@ public class BugManagementController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<Bug> updateBug(@RequestBody Bug bug, @PathVariable Long id) {
+    public ResponseEntity<String> updateBug(@RequestBody BugRequest bug, @PathVariable Long id) {
 
-        Bug toUpdate = bugService.updateBug(bug, id);
-        return new ResponseEntity<>(toUpdate, HttpStatus.OK);
+        bugService.updateBugByBugRequest(bug, id);
+
+        return new ResponseEntity<>(String.format("Bug with %d successfully updated", id), HttpStatus.OK);
     }
 
     @PatchMapping("/assign/{id}")
