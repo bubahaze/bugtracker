@@ -32,7 +32,7 @@ public class BugService {
                 .description(request.getDescription())
                 .uniqueCode(uniqueCode)
                 .status(BugStatus.REPORTED)
-                .opSystemWhereBugOccurred(request.getOpSystemWhereBugOccured())
+                .opSystemWhereBugOccurred(request.getOpSystemWhereBugOccurred())
                 .usernameOfReporterOfBug(reporterUsername)
                 .priority(BugPriority.UNSET)
                 .build();
@@ -41,17 +41,13 @@ public class BugService {
         return uniqueCode;
     }
 
-    public Bug updateBug(Bug bug, long id) {
+    public void updateBugByBugRequest(BugRequest bug, long id) {
         Bug bugToUpdate = findById(id);
         bugToUpdate.setSummary(bug.getSummary());
         bugToUpdate.setProject(bug.getProject());
         bugToUpdate.setDescription(bug.getDescription());
         bugToUpdate.setOpSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred());
-        bugToUpdate.setPriority(bug.getPriority());
-        bugToUpdate.setStatus(bug.getStatus());
-        bugToUpdate.setAssignedStaffMember(bug.getAssignedStaffMember());
-
-        return bugRepo.save(bugToUpdate);
+        bugRepo.save(bugToUpdate);
     }
 
     public void deleteBug(Long id) {
@@ -100,7 +96,7 @@ public class BugService {
         bugResponse.setLastChangeAt(bug.getLastChangeAt());
         bugResponse.setUniqueCode(bug.getUniqueCode());
         bugResponse.setStatus(bug.getStatus());
-        bugResponse.setOpSystemWhereBugOccured(bug.getOpSystemWhereBugOccurred());
+        bugResponse.setOpSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred());
         bugResponse.setUsernameOfReporterOfBug(bug.getUsernameOfReporterOfBug());
         bugResponse.setPriority(bug.getPriority());
         if (bug.getAssignedStaffMember() != null) {
