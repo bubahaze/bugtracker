@@ -38,7 +38,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .mvcMatchers("/user").hasRole(ApplicationUserRole.USER.name())
                 .mvcMatchers("/admin").hasRole(ApplicationUserRole.ADMIN.name())
                 .mvcMatchers("/staff").hasRole(ApplicationUserRole.STAFF.name())
-                .mvcMatchers("/api/registration/*", "/css/*", "/js/*").permitAll()
+                .mvcMatchers("/api/registration/**", "/css/*", "/js/*").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
@@ -67,7 +67,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(daoAuthenticationProvider());
 
         auth.inMemoryAuthentication()
-                .withUser("Admin").password(passwordEncoder.encode("adminPass"))
+                .withUser("admin").password(passwordEncoder.encode("adminpass"))
                 .roles("ADMIN")
                 .and().withUser("memouser").password(passwordEncoder.encode("userpass")).roles("USER")
                .and().withUser("staffmem").password(passwordEncoder.encode("staffmem")).roles("STAFF");

@@ -4,15 +4,14 @@ import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.email.EmailSender;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
-import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenRepository;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
-import org.aspectj.lang.annotation.After;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -20,7 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -40,8 +39,20 @@ class RegistrationServiceTest {
 
 
     @Test
+    @DisplayName("Should invoke signUpUser method of ApplicationUserService class")
+    void register_1() {
+        registrationService.register(registrationRequest);
+        verify(applicationUserService).signUpUser(new ApplicationUser(
+                registrationRequest.getUsername(),
+                registrationRequest.getFirstName(),
+                registrationRequest.getLastName(),
+                registrationRequest.getEmail(),
+                registrationRequest.getPassword()));
+    }
+
+    @Test
     @DisplayName("Should return string upon register")
-    void register() {
+    void register_2() {
         String expected = "User successfully registered. A confirmation e-mail has been sent to you";
         String actual = registrationService.register(registrationRequest);
         assertEquals(expected, actual);

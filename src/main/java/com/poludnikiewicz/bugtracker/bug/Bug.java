@@ -1,49 +1,62 @@
 package com.poludnikiewicz.bugtracker.bug;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name="bug")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Bug {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @JsonIgnore
-    @Column
     private Long id;
-    @Column
+
     private String summary;
-    @Column
+
     private String project;
-    @Column
+
     private String description;
-    @Column
+
     @CreationTimestamp
     private LocalDateTime creationDate;
-    @Column
-    @JsonIgnore
+
+    @UpdateTimestamp
+    private LocalDateTime lastChangeAt;
+
     private String uniqueCode;
-    @Column
-    @JsonIgnore
-    private BugStatus status; //TODO:  make it automatically REPORTED upon creating Bug by user -
-    //TODO: see Registration controller & appusers
-//    @Column
-//    @JsonIgnore
-//    private StaffMember assignedStaffMember; //should StaffMember extend User class ???
 
-    //TODO: field enum priority?
+    @Enumerated(EnumType.STRING)
+    private BugStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="application_user_id")
+    private ApplicationUser assignedStaffMember;
 
+    private String opSystemWhereBugOccurred;
 
+    private String usernameOfReporterOfBug;
+
+    @Enumerated(EnumType.STRING)
+    private BugPriority priority;
+
+    @OneToMany
+    @JoinColumn(name = "bug_id", updatable = false, insertable = false)
+    private List<Comment> comments;
+
+    //TODO: comments and comments tag features
 
 }

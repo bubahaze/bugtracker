@@ -1,10 +1,9 @@
 package com.poludnikiewicz.bugtracker.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,11 +11,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 
-@Getter
-@Setter
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @Entity
 public class ApplicationUser implements UserDetails {
@@ -32,6 +30,8 @@ public class ApplicationUser implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private ApplicationUserRole applicationUserRole;
+    @OneToMany(mappedBy = "applicationUser", cascade = CascadeType.REMOVE)
+    private Set<ConfirmationToken> tokens;
     private boolean isAccountNonExpired;
     private boolean isAccountNonLocked;
     private boolean isCredentialsNonExpired;
