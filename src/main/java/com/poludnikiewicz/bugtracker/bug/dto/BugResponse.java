@@ -30,7 +30,7 @@ public class BugResponse {
     //private ApplicationUser assignedStaffMember;
     private String usernameOfAssignee;
 
-    private String opSystemWhereBugOccured;
+    private String opSystemWhereBugOccurred;
 
     private String usernameOfReporterOfBug;
 

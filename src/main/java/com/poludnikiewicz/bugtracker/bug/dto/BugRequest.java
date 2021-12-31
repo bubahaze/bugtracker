@@ -18,6 +18,6 @@ public class BugRequest {
     private String description;
 
     @NotBlank(message = "Please specify the OS on which the issue occured")
-    private String opSystemWhereBugOccured;
+    private String opSystemWhereBugOccurred;
 
 }
