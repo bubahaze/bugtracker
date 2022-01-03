@@ -1,6 +1,11 @@
 package com.poludnikiewicz.bugtracker.bug;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +16,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
@@ -48,7 +54,7 @@ public class Bug {
 
     private String opSystemWhereBugOccurred;
 
-    private String usernameOfReporterOfBug;
+    private String usernameOfReporter;
 
     @Enumerated(EnumType.STRING)
     private BugPriority priority;

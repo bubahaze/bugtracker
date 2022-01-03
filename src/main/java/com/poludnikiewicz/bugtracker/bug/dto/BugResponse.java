@@ -34,7 +34,7 @@ public class BugResponse {
 
     private String opSystemWhereBugOccurred;
 
-    private String usernameOfReporterOfBug;
+    private String usernameOfReporter;
 
     private BugPriority priority;
 
