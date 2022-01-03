@@ -1,10 +1,11 @@
 package com.poludnikiewicz.bugtracker.bug.dto;
 
-import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.poludnikiewicz.bugtracker.bug.BugPriority;
 import com.poludnikiewicz.bugtracker.bug.BugStatus;
-import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -18,9 +19,10 @@ public class BugResponse {
     private String project;
 
     private String description;
-
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss")
     private LocalDateTime creationDate;
 
+    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss")
     private LocalDateTime lastChangeAt;
 
     private String uniqueCode;
