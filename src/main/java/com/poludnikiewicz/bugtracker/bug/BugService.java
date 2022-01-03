@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ public class BugService {
                 .uniqueCode(uniqueCode)
                 .status(BugStatus.REPORTED)
                 .opSystemWhereBugOccurred(request.getOpSystemWhereBugOccurred())
-                .usernameOfReporterOfBug(reporterUsername)
+                .usernameOfReporter(reporterUsername)
                 .priority(BugPriority.UNSET)
                 .build();
 
@@ -65,18 +64,31 @@ public class BugService {
         return mapToBugResponse(bug);
     }
 
-    public Collection<Bug> findByProject(String project) {
-        return bugRepo.findByProjectIgnoreCaseOrderByCreationDateDesc(project);
+    public List<BugResponse> findByProject(String project) {
+        return bugRepo
+                .findByProjectContainingIgnoreCaseOrderByLastChangeAtDesc(project)
+                .stream()
+                .map(this::mapToBugResponse)
+                .collect(Collectors.toList());
 
+    }
+
+    public List<BugResponse> findByKeyword(String keyword) {
+        return bugRepo
+                .findByKeyword(keyword)
+                .stream()
+                .map(this::mapToBugResponse)
+                .collect(Collectors.toList());
     }
 
     public Bug saveBug(Bug bug) {
         return bugRepo.save(bug);
     }
 
-    public Bug findByUniqueCode(String uniqueCode) {
-        return bugRepo.findByUniqueCode(uniqueCode)
+    public BugResponse findByUniqueCode(String uniqueCode) {
+        Bug bug = bugRepo.findByUniqueCode(uniqueCode)
                 .orElseThrow(() -> new BugNotFoundException("Bug with unique code " + uniqueCode + " not found."));
+            return mapToBugResponse(bug);
     }
 
     public List<BugResponse> findAllBugs() {
@@ -97,7 +109,7 @@ public class BugService {
         bugResponse.setUniqueCode(bug.getUniqueCode());
         bugResponse.setStatus(bug.getStatus());
         bugResponse.setOpSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred());
-        bugResponse.setUsernameOfReporterOfBug(bug.getUsernameOfReporterOfBug());
+        bugResponse.setUsernameOfReporter(bug.getUsernameOfReporter());
         bugResponse.setPriority(bug.getPriority());
         if (bug.getAssignedStaffMember() != null) {
             ApplicationUser assignee = bug.getAssignedStaffMember();
@@ -111,6 +123,10 @@ public class BugService {
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
     }
+
+//    public List<BugResponse> sortByProjectAlphabetically(String key) {
+//        return bugRepo.sortByProjectAlphabetically(key);
+//    }
 
     //TODO: QUERY METHODS
 }
