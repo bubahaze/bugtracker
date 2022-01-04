@@ -35,12 +35,27 @@ public class BugManagementController {
         return new ResponseEntity<>(bug, HttpStatus.OK);
     }
 
+    @GetMapping("/")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<List<BugResponse>> showByPriority(@RequestParam String priority) {
+        List<BugResponse> bugsByPriority = bugService.findBugsByPriority(priority);
+        return new ResponseEntity<>(bugsByPriority, HttpStatus.OK);
+    }
+
     @GetMapping("/assigned")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showBugsAssignedToPrincipal(Authentication authentication) {
         List<BugResponse> bugs = bugService.findAllBugsAssignedToPrincipal(authentication.getName());
 
         return new ResponseEntity<>(bugs, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/sort", params = "key")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@RequestParam String key,
+                                                                    @RequestParam (required = false) String direction) {
+
+        return new ResponseEntity<>(bugService.sortBugsAccordingToKey(key, direction), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -78,8 +93,8 @@ public class BugManagementController {
 
     @PatchMapping("/staff/assign/{id}")
     @PreAuthorize("hasRole('ROLE_STAFF')")
-    public ResponseEntity<String> assignBugToHimself(@RequestParam String staffAssigneeUsername, @PathVariable Long id,
-                                                     Authentication authentication) {
+    public ResponseEntity<String> assignBugToPrincipal(@RequestParam String staffAssigneeUsername, @PathVariable Long id,
+                                                       Authentication authentication) {
         String usernameOfPrincipal = authentication.getName();
         if (usernameOfPrincipal.equals(staffAssigneeUsername)) {
             Bug toAssign = bugService.findById(id);

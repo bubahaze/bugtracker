@@ -1,6 +1,5 @@
 package com.poludnikiewicz.bugtracker.bug;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +21,8 @@ import java.util.List;
 public class Bug {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name="bug_sequence", sequenceName = "bug_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bug_sequence")
     private Long id;
 
     private String summary;
@@ -48,7 +48,7 @@ public class Bug {
 
     private String opSystemWhereBugOccurred;
 
-    private String usernameOfReporterOfBug;
+    private String usernameOfReporter;
 
     @Enumerated(EnumType.STRING)
     private BugPriority priority;
