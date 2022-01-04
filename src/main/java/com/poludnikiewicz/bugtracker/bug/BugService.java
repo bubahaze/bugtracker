@@ -5,10 +5,12 @@ import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -124,9 +126,16 @@ public class BugService {
                 .collect(Collectors.toList());
     }
 
-//    public List<BugResponse> sortByProjectAlphabetically(String key) {
-//        return bugRepo.sortByProjectAlphabetically(key);
-//    }
+    public List<BugResponse> sortByProjectAccordingToKey(String key, String direction) {
+        Sort.Direction sortDir = Sort.Direction.DESC;
+        if (direction == null || direction.equalsIgnoreCase("ASC")) {
+            sortDir = Sort.Direction.ASC;
+        }
+                return bugRepo.findAll(Sort.by(sortDir, key))
+                .stream()
+                .map(this::mapToBugResponse)
+                .collect(Collectors.toList());
+    }
 
     //TODO: QUERY METHODS
 }
