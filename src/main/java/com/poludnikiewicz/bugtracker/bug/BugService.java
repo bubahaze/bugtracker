@@ -126,6 +126,13 @@ public class BugService {
                 .collect(Collectors.toList());
     }
 
+    public List<BugResponse> findByReporter(String reporterUsername) {
+        return bugRepo.findByUsernameOfReporter(reporterUsername)
+                .stream()
+                .map(this::mapToBugResponse)
+                .collect(Collectors.toList());
+    }
+
     private BugPriority sanitize(String priority) {
         priority = priority.toUpperCase();
         switch (priority) {

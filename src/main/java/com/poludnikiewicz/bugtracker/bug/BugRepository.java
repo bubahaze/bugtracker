@@ -1,5 +1,6 @@
 package com.poludnikiewicz.bugtracker.bug;
 
+import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -25,4 +26,6 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
     List<Bug> findAllBugsAssignedToPrincipal(String username);
 
     List<Bug> findByPriority(BugPriority priority);
+
+    List<Bug> findByUsernameOfReporter(String reporterUsername);
 }
