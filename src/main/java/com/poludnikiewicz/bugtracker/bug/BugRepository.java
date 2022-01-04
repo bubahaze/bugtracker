@@ -1,12 +1,9 @@
 package com.poludnikiewicz.bugtracker.bug;
 
-import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +12,6 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
 
     Optional<Bug> findByUniqueCode(String uniqueCode);
 
-    //@Query("select b from Bug b where b.project like '%?1%'")
     List<Bug> findByProjectContainingIgnoreCaseOrderByLastChangeAtDesc(String project);
 
     @Query("select b from Bug b where lower(b.summary) like lower(concat('%', ?1,'%'))" +

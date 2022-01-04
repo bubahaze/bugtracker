@@ -47,7 +47,7 @@ public class BugManagementController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@RequestParam String key, @RequestParam (required = false) String direction) {
 
-        return new ResponseEntity<>(bugService.sortByProjectAccordingToKey(key, direction), HttpStatus.OK);
+        return new ResponseEntity<>(bugService.sortBugsAccordingToKey(key, direction), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
