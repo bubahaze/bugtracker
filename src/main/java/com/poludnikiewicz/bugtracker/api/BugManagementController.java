@@ -35,6 +35,13 @@ public class BugManagementController {
         return new ResponseEntity<>(bug, HttpStatus.OK);
     }
 
+    @GetMapping("/")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<List<BugResponse>> showByPriority(@RequestParam String priority) {
+        List<BugResponse> bugsByPriority = bugService.findBugsByPriority(priority);
+        return new ResponseEntity<>(bugsByPriority, HttpStatus.OK);
+    }
+
     @GetMapping("/assigned")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showBugsAssignedToPrincipal(Authentication authentication) {
@@ -45,7 +52,8 @@ public class BugManagementController {
 
     @GetMapping(value = "/sort", params = "key")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@RequestParam String key, @RequestParam (required = false) String direction) {
+    public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@RequestParam String key,
+                                                                    @RequestParam (required = false) String direction) {
 
         return new ResponseEntity<>(bugService.sortBugsAccordingToKey(key, direction), HttpStatus.OK);
     }
