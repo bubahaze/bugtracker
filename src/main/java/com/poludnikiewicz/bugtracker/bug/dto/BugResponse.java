@@ -3,16 +3,20 @@ package com.poludnikiewicz.bugtracker.bug.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.poludnikiewicz.bugtracker.bug.BugPriority;
 import com.poludnikiewicz.bugtracker.bug.BugStatus;
+import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class BugResponse {
+
+    private long id;
 
     private String summary;
 
@@ -28,8 +32,7 @@ public class BugResponse {
     private String uniqueCode;
 
     private BugStatus status;
-
-    //private ApplicationUser assignedStaffMember;
+    
     private String usernameOfAssignee;
 
     private String opSystemWhereBugOccurred;
@@ -37,6 +40,8 @@ public class BugResponse {
     private String usernameOfReporter;
 
     private BugPriority priority;
+
+    private List<BugCommentResponse> comments;
 
 
 }
