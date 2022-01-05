@@ -1,6 +1,7 @@
 package com.poludnikiewicz.bugtracker.bug;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
+import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -53,10 +54,18 @@ public class Bug {
     @Enumerated(EnumType.STRING)
     private BugPriority priority;
 
-    @OneToMany
-    @JoinColumn(name = "bug_id", updatable = false, insertable = false)
-    private List<Comment> comments;
+    @OneToMany(mappedBy = "bug", cascade = CascadeType.ALL, orphanRemoval = true)
+    //@JoinColumn(name = "bug_id", updatable = false, insertable = false)
+    private List<BugComment> bugComments;
 
-    //TODO: comments and comments tag features
+    public void addComment(BugComment bugComment) {
+        bugComments.add(bugComment);
+        bugComment.setBug(this);
+    }
+
+    public void removeComment(BugComment bugComment) {
+        bugComments.remove(bugComment);
+        bugComment.setBug(null);
+    }
 
 }
