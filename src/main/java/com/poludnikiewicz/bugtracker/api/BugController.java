@@ -1,12 +1,10 @@
 package com.poludnikiewicz.bugtracker.api;
 
 
-import com.poludnikiewicz.bugtracker.bug.Bug;
-import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.BugService;
+import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.util.Collection;
 import java.util.List;
 
 @AllArgsConstructor
@@ -64,10 +61,10 @@ public class BugController {
     public ResponseEntity<String> postBug(@Valid @RequestBody BugRequest bug, Authentication authentication) {
         UserDetails userDetailsOfReporter = (UserDetails) authentication.getPrincipal();
         String reporterUsername = userDetailsOfReporter.getUsername();
-       String uniqueCode = service.addBug(bug, reporterUsername);
+        String uniqueCode = service.addBug(bug, reporterUsername);
 
-       return new ResponseEntity<>(String.format("Bug successfully reported. The unique ID of reported bug is: %s", uniqueCode),
-               HttpStatus.CREATED);
+        return new ResponseEntity<>(String.format("Bug successfully reported. The unique ID of reported bug is: %s", uniqueCode),
+                HttpStatus.CREATED);
     }
 
 
