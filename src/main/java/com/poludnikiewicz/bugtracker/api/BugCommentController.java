@@ -29,7 +29,8 @@ public class BugCommentController {
 
         return new ResponseEntity<>("Comment posted to Bug with id " + request.getBugId(), HttpStatus.CREATED);
 
-
     }
+    
+    //TODO: delete mapping & put/patch mapping of comments (only admin/staff/author allowed)
 
 }
