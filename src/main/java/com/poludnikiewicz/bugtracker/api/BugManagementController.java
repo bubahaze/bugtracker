@@ -53,7 +53,7 @@ public class BugManagementController {
     @GetMapping(value = "/sort", params = "key")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@RequestParam String key,
-                                                                    @RequestParam (required = false) String direction) {
+                                                                    @RequestParam(required = false) String direction) {
 
         return new ResponseEntity<>(bugService.sortBugsAccordingToKey(key, direction), HttpStatus.OK);
     }
@@ -109,9 +109,10 @@ public class BugManagementController {
 
     @PatchMapping("/setPriority/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<String> setPriorityOfBug(@RequestParam BugPriority priority, @PathVariable Long id) {
+    public ResponseEntity<String> setPriorityOfBug(@RequestParam String priority, @PathVariable Long id) {
         Bug toSetPriority = bugService.findById(id);
-        toSetPriority.setPriority(priority);
+
+        toSetPriority.setPriority(BugPriority.sanitizePriorityInput(priority));
         bugService.saveBug(toSetPriority);
 
         return new ResponseEntity<>(String.format("Priority successfully set to %s", priority), HttpStatus.OK);
@@ -120,9 +121,9 @@ public class BugManagementController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<String> setStatusOfBug(@PathVariable Long id, @RequestParam BugStatus status) {
+    public ResponseEntity<String> setStatusOfBug(@PathVariable Long id, @RequestParam String status) {
         Bug toSetStatus = bugService.findById(id);
-        toSetStatus.setStatus(status);
+        toSetStatus.setStatus(BugStatus.valueOf(status.toUpperCase()));
         bugService.saveBug(toSetStatus);
 
         return new ResponseEntity<>(String.format("Status successfully set to %s", status), HttpStatus.OK);
