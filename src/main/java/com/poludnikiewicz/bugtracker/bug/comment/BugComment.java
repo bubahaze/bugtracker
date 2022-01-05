@@ -1,6 +1,7 @@
-package com.poludnikiewicz.bugtracker.bug;
+package com.poludnikiewicz.bugtracker.bug.comment;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
+import com.poludnikiewicz.bugtracker.bug.Bug;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class BugComment {
 
     @Id
