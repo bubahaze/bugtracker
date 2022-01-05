@@ -117,7 +117,7 @@ public class BugService {
     }
 
     public List<BugResponse> findBugsByPriority(String priority) {
-        BugPriority bugPriority = sanitizePriorityInput(priority);
+        BugPriority bugPriority = BugPriority.sanitizePriorityInput(priority);
 
         return bugRepo.findByPriority(bugPriority)
                 .stream()
@@ -130,44 +130,6 @@ public class BugService {
                 .stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
-    }
-
-    private BugPriority sanitizePriorityInput(String priority) {
-        priority = priority.toUpperCase();
-        switch (priority) {
-            case "P1":
-                return BugPriority.P1_CRITICAL;
-            case "CRITICAL":
-                return BugPriority.P1_CRITICAL;
-            case "P1_CRITICAL":
-                return BugPriority.P1_CRITICAL;
-            case "P2":
-                return BugPriority.P2_IMPORTANT;
-            case "IMPORTANT":
-                return BugPriority.P2_IMPORTANT;
-            case "P2_IMPORTANT":
-                return BugPriority.P2_IMPORTANT;
-            case "P3":
-                return BugPriority.P3_NORMAL;
-            case "NORMAL":
-                return BugPriority.P3_NORMAL;
-            case "P3_NORMAL":
-                return BugPriority.P3_NORMAL;
-            case "P4":
-                return BugPriority.P4_MARGINAL;
-            case "MARGINAL":
-                return BugPriority.P4_MARGINAL;
-            case "P4_MARGINAL":
-                return BugPriority.P4_MARGINAL;
-            case "P5":
-                return BugPriority.P5_REDUNTANT;
-            case "REDUNTANT":
-                return BugPriority.P5_REDUNTANT;
-            case "P5_REDUNTANT":
-                return BugPriority.P5_REDUNTANT;
-            default:
-                return BugPriority.UNSET;
-        }
     }
 
     private BugResponse mapToBugResponse(Bug bug) {
@@ -184,7 +146,7 @@ public class BugService {
                 .usernameOfReporter(bug.getUsernameOfReporter())
                 .priority(bug.getPriority())
                 .build();
-        
+
         if (bug.getBugComments() != null) {
             bugResponse.setComments(bug.getBugComments().stream()
                     .map(this::mapToBugCommentResponse)
