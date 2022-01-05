@@ -55,17 +55,6 @@ public class Bug {
     private BugPriority priority;
 
     @OneToMany(mappedBy = "bug", cascade = CascadeType.ALL, orphanRemoval = true)
-    //@JoinColumn(name = "bug_id", updatable = false, insertable = false)
     private List<BugComment> bugComments;
-
-    public void addComment(BugComment bugComment) {
-        bugComments.add(bugComment);
-        bugComment.setBug(this);
-    }
-
-    public void removeComment(BugComment bugComment) {
-        bugComments.remove(bugComment);
-        bugComment.setBug(null);
-    }
 
 }
