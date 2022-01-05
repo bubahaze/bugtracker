@@ -5,6 +5,7 @@ import com.poludnikiewicz.bugtracker.bug.BugPriority;
 import com.poludnikiewicz.bugtracker.bug.BugStatus;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class BugResponse {
 
     private long id;
@@ -32,7 +34,7 @@ public class BugResponse {
     private String uniqueCode;
 
     private BugStatus status;
-    
+
     private String usernameOfAssignee;
 
     private String opSystemWhereBugOccurred;
