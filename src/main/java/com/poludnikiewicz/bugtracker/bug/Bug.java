@@ -1,5 +1,6 @@
 package com.poludnikiewicz.bugtracker.bug;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import lombok.AllArgsConstructor;

@@ -29,6 +29,8 @@ public class BugCommentService {
                 .bug(bug)
                 .build();
 
+        //TODO: bug.addComment(comment) and addComment/removeComment in Bug entity ?
+
         commentRepository.save(comment);
     }
 

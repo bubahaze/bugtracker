@@ -1,5 +1,6 @@
 package com.poludnikiewicz.bugtracker.bug.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -17,6 +18,7 @@ public class BugRequest {
     @NotBlank(message = "Please provide the description of issue")
     private String description;
 
+    @JsonAlias({"operatingSystem", "OS", "opSys", "opSystemWhereBugOccurred"})
     @NotBlank(message = "Please specify the OS on which the issue occured")
     private String opSystemWhereBugOccurred;
 
