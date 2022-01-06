@@ -1,12 +1,10 @@
 package com.poludnikiewicz.bugtracker.api;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
-import com.poludnikiewicz.bugtracker.bug.Bug;
-import com.poludnikiewicz.bugtracker.bug.BugPriority;
-import com.poludnikiewicz.bugtracker.bug.BugService;
-import com.poludnikiewicz.bugtracker.bug.BugStatus;
+import com.poludnikiewicz.bugtracker.bug.*;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import lombok.AllArgsConstructor;
@@ -29,6 +27,7 @@ public class BugManagementController {
     private final ApplicationUserService userService;
 
     @GetMapping("/{id}")
+    @JsonView(Views.Single.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
         BugResponse bug = bugService.findBugResponseById(id);
@@ -36,6 +35,7 @@ public class BugManagementController {
     }
 
     @GetMapping("/")
+    @JsonView(Views.General.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showByPriority(@RequestParam String priority) {
         List<BugResponse> bugsByPriority = bugService.findBugsByPriority(priority);
@@ -43,6 +43,7 @@ public class BugManagementController {
     }
 
     @GetMapping("/assigned")
+    @JsonView(Views.General.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showBugsAssignedToPrincipal(Authentication authentication) {
         List<BugResponse> bugs = bugService.findAllBugsAssignedToPrincipal(authentication.getName());
@@ -51,6 +52,7 @@ public class BugManagementController {
     }
 
     @GetMapping(value = "/sort", params = "key")
+    @JsonView(Views.General.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@RequestParam String key,
                                                                     @RequestParam(required = false) String direction) {
