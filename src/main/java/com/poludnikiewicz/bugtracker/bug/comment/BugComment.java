@@ -5,9 +5,9 @@ import com.poludnikiewicz.bugtracker.bug.Bug;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Entity
-@Table
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,8 +15,8 @@ import javax.persistence.*;
 public class BugComment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id = UUID.randomUUID();
 
     private String content;
 

@@ -33,10 +33,10 @@ public class BugController {
         return new ResponseEntity<>(allBugs, HttpStatus.OK);
     }
 
-    @GetMapping("/bug/{uniqueCode}")
+    @GetMapping("/bug/{id}")
     @JsonView(Views.Single.class)
-    public ResponseEntity<BugResponse> showByUniqueCode(@PathVariable String uniqueCode) {
-        BugResponse bugResponse = service.findByUniqueCode(uniqueCode);
+    public ResponseEntity<BugResponse> showByUniqueCode(@PathVariable Long id) {
+        BugResponse bugResponse = service.findBugResponseById(id);
         return new ResponseEntity<>(bugResponse, HttpStatus.OK);
     }
 

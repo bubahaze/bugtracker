@@ -1,6 +1,5 @@
 package com.poludnikiewicz.bugtracker.auth;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import lombok.*;

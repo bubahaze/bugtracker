@@ -161,6 +161,7 @@ public class BugService {
 
     private BugCommentResponse mapToBugCommentResponse(BugComment comment) {
         BugCommentResponse commentResponse = new BugCommentResponse();
+        commentResponse.setId(comment.getId());
         commentResponse.setAuthor(comment.getAuthor());
         commentResponse.setContent(comment.getContent());
         return commentResponse;

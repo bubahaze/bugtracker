@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.UUID;
+
 @Service
 @Transactional
 @AllArgsConstructor
@@ -32,6 +34,14 @@ public class BugCommentService {
         //TODO: bug.addComment(comment) and addComment/removeComment in Bug entity ?
 
         commentRepository.save(comment);
+    }
+
+    public void deleteBugComment(UUID id) {
+        commentRepository.deleteById(id);
+    }
+
+    public void updateBugComment(BugComment comment, Long commentId) {
+        //comm
     }
 
 //    private BugCommentResponse mapToBugCommentResponse(BugComment comment) {

@@ -82,15 +82,20 @@ public class BugManagementController {
     public ResponseEntity<String> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
         Bug toAssign = bugService.findById(id);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
-        boolean isStaffOrAdmin = staffAssignee.getApplicationUserRole().name().equals("STAFF") ||
-                staffAssignee.getApplicationUserRole().name().equals("ADMIN");
-        if (isStaffOrAdmin) {
+
+        if (isStaffOrAdmin(staffAssignee)) {
             assignToBugAndChangeBugStatus(toAssign, staffAssignee);
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
         return new ResponseEntity<>(String.format("Bug with id %d has been assigned to %s", id, staffAssigneeUsername),
                 HttpStatus.NO_CONTENT);
+    }
+
+    private boolean isStaffOrAdmin(ApplicationUser staffAssignee) {
+        return staffAssignee.getApplicationUserRole().name().equals("STAFF") ||
+                staffAssignee.getApplicationUserRole().name().equals("ADMIN");
+
     }
 
     @PatchMapping("/staff/assign/{id}")
