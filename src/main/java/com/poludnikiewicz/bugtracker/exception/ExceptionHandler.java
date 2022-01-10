@@ -50,6 +50,13 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {CommentNotFoundException.class})
+    public ResponseEntity<Object> CommentNotFoundException(CommentNotFoundException ex) {
+        LOGGER.error("Comment not found exception: ", ex.getMessage());
+
+        return new ResponseEntity<>(ex.getLocalizedMessage(), HttpStatus.NOT_FOUND);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         List<String> details = new ArrayList<>();
