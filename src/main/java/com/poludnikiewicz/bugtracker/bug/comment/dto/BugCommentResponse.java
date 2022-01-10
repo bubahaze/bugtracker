@@ -6,15 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@JsonView(Views.Single.class)
+@JsonView(Views.SingleBug.class)
 public class BugCommentResponse {
 
-    private UUID id;
+    @JsonView(Views.StaffSingleBug.class)
+    private Long id;
     private String content;
     private String author;
 

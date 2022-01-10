@@ -4,6 +4,8 @@ public class Views {
 
     public static class General {}
 
-    public static class Single extends General {}
+    public static class SingleBug extends General {}
+
+    public static class StaffSingleBug extends SingleBug {}
 
 }
