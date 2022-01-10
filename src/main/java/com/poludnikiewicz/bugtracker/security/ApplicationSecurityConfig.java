@@ -18,23 +18,18 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-// ^^ this enables using @PreAuthorize annotation replacing mvc/antMatchers
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     private final PasswordEncoder passwordEncoder;
     private final ApplicationUserService userService;
     private final SimpleAuthenticationSuccessHandler successHandler;
-    
+
 
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                //.mvcMatchers(HttpMethod.DELETE, "manage/api/**").hasRole(ADMIN.name())
-                //.mvcMatchers("manage/api/**").hasAnyRole(ADMIN.name(), STAFF.name())
-                //.mvcMatchers("/api/manage").hasRole("STAFF")
-                //.mvcMatchers("/api/bugtracker/*").hasRole("USER")
                 .mvcMatchers("/user").hasRole(ApplicationUserRole.USER.name())
                 .mvcMatchers("/admin").hasRole(ApplicationUserRole.ADMIN.name())
                 .mvcMatchers("/staff").hasRole(ApplicationUserRole.STAFF.name())
@@ -44,21 +39,18 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .loginPage("/login").permitAll()
                 .successHandler(successHandler)
-                //.loginProcessingUrl("/perform_login")
                 .and()
                 .rememberMe()
-                //.failureUrl("/login.html?error=true")
-                //.failureHandler(authenticationFailureHandler())
                 .and()
                 .logout()
-                    .logoutUrl("/logout")
-                    .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
-                    .clearAuthentication(true)
-                    .invalidateHttpSession(true)
-                    .deleteCookies("JSESSIONID", "remember-me")
-                    .logoutSuccessUrl("/login")
-                    .and()
-        .httpBasic();
+                .logoutUrl("/logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                .clearAuthentication(true)
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID", "remember-me")
+                .logoutSuccessUrl("/login")
+                .and()
+                .httpBasic();
 
     }
 
@@ -70,13 +62,9 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .withUser("admin").password(passwordEncoder.encode("adminpass"))
                 .roles("ADMIN")
                 .and().withUser("memouser").password(passwordEncoder.encode("userpass")).roles("USER")
-               .and().withUser("staffmem").password(passwordEncoder.encode("staffmem")).roles("STAFF");
+                .and().withUser("staffmem").password(passwordEncoder.encode("staffmem")).roles("STAFF");
     }
 
-    /**
-     * An AuthenticationProvider implementation that retrieves user details from a UserDetailsService.
-     * @return DaoAuthenticationProvider
-     */
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -84,6 +72,4 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         provider.setUserDetailsService(userService);
         return provider;
     }
-
-
 }

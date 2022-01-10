@@ -18,6 +18,44 @@ public enum BugPriority {
     P3_NORMAL,
     P4_MARGINAL,
     P5_REDUNTANT,
-    UNSET
+    UNSET;
+
+    public static BugPriority sanitizePriorityInput(String priority) {
+        priority = priority.toUpperCase();
+        switch (priority) {
+            case "P1":
+                return BugPriority.P1_CRITICAL;
+            case "CRITICAL":
+                return BugPriority.P1_CRITICAL;
+            case "P1_CRITICAL":
+                return BugPriority.P1_CRITICAL;
+            case "P2":
+                return BugPriority.P2_IMPORTANT;
+            case "IMPORTANT":
+                return BugPriority.P2_IMPORTANT;
+            case "P2_IMPORTANT":
+                return BugPriority.P2_IMPORTANT;
+            case "P3":
+                return BugPriority.P3_NORMAL;
+            case "NORMAL":
+                return BugPriority.P3_NORMAL;
+            case "P3_NORMAL":
+                return BugPriority.P3_NORMAL;
+            case "P4":
+                return BugPriority.P4_MARGINAL;
+            case "MARGINAL":
+                return BugPriority.P4_MARGINAL;
+            case "P4_MARGINAL":
+                return BugPriority.P4_MARGINAL;
+            case "P5":
+                return BugPriority.P5_REDUNTANT;
+            case "REDUNTANT":
+                return BugPriority.P5_REDUNTANT;
+            case "P5_REDUNTANT":
+                return BugPriority.P5_REDUNTANT;
+            default:
+                return BugPriority.UNSET;
+        }
+    }
 
 }

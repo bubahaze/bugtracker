@@ -1,10 +1,12 @@
 package com.poludnikiewicz.bugtracker.bug;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
+import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
+import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +17,10 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class BugService {
-    private final BugRepository bugRepo;
 
-    @Autowired
-    public BugService(BugRepository bugRepo) {
-        this.bugRepo = bugRepo;
-    }
+    private final BugRepository bugRepo;
 
     public String addBug(BugRequest request, String reporterUsername) {
 
@@ -89,7 +88,7 @@ public class BugService {
     public BugResponse findByUniqueCode(String uniqueCode) {
         Bug bug = bugRepo.findByUniqueCode(uniqueCode)
                 .orElseThrow(() -> new BugNotFoundException("Bug with unique code " + uniqueCode + " not found."));
-            return mapToBugResponse(bug);
+        return mapToBugResponse(bug);
     }
 
     public List<BugResponse> findAllBugs() {
@@ -111,14 +110,14 @@ public class BugService {
         if (direction == null || direction.equalsIgnoreCase("ASC")) {
             sortDir = Sort.Direction.ASC;
         }
-                return bugRepo.findAll(Sort.by(sortDir, key))
+        return bugRepo.findAll(Sort.by(sortDir, key))
                 .stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
     }
 
     public List<BugResponse> findBugsByPriority(String priority) {
-        BugPriority bugPriority = sanitize(priority);
+        BugPriority bugPriority = BugPriority.sanitizePriorityInput(priority);
 
         return bugRepo.findByPriority(bugPriority)
                 .stream()
@@ -133,45 +132,39 @@ public class BugService {
                 .collect(Collectors.toList());
     }
 
-    private BugPriority sanitize(String priority) {
-        priority = priority.toUpperCase();
-        switch (priority) {
-            case "P1": return BugPriority.P1_CRITICAL;
-            case "CRITICAL": return BugPriority.P1_CRITICAL;
-            case "P1_CRITICAL": return BugPriority.P1_CRITICAL;
-            case "P2": return BugPriority.P2_IMPORTANT;
-            case "IMPORTANT": return BugPriority.P2_IMPORTANT;
-            case "P2_IMPORTANT": return BugPriority.P2_IMPORTANT;
-            case "P3": return BugPriority.P3_NORMAL;
-            case "NORMAL": return BugPriority.P3_NORMAL;
-            case "P3_NORMAL": return BugPriority.P3_NORMAL;
-            case "P4": return BugPriority.P4_MARGINAL;
-            case "MARGINAL": return BugPriority.P4_MARGINAL;
-            case "P4_MARGINAL": return BugPriority.P4_MARGINAL;
-            case "P5": return BugPriority.P5_REDUNTANT;
-            case "REDUNTANT": return BugPriority.P5_REDUNTANT;
-            case "P5_REDUNTANT": return BugPriority.P5_REDUNTANT;
-            default : return BugPriority.UNSET;
-        }
-    }
-
     private BugResponse mapToBugResponse(Bug bug) {
-        BugResponse bugResponse = new BugResponse();
-        bugResponse.setSummary(bug.getSummary());
-        bugResponse.setDescription(bug.getDescription());
-        bugResponse.setProject(bug.getProject());
-        bugResponse.setCreationDate(bug.getCreationDate());
-        bugResponse.setLastChangeAt(bug.getLastChangeAt());
-        bugResponse.setUniqueCode(bug.getUniqueCode());
-        bugResponse.setStatus(bug.getStatus());
-        bugResponse.setOpSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred());
-        bugResponse.setUsernameOfReporter(bug.getUsernameOfReporter());
-        bugResponse.setPriority(bug.getPriority());
+        BugResponse bugResponse = BugResponse.builder()
+                .id(bug.getId())
+                .summary(bug.getSummary())
+                .description(bug.getDescription())
+                .project(bug.getProject())
+                .creationDate(bug.getCreationDate())
+                .lastChangeAt(bug.getLastChangeAt())
+                .uniqueCode(bug.getUniqueCode())
+                .status(bug.getStatus())
+                .opSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred())
+                .usernameOfReporter(bug.getUsernameOfReporter())
+                .priority(bug.getPriority())
+                .build();
+
+        if (bug.getBugComments() != null) {
+            bugResponse.setComments(bug.getBugComments().stream()
+                    .map(this::mapToBugCommentResponse)
+                    .collect(Collectors.toList()));
+        }
         if (bug.getAssignedStaffMember() != null) {
             ApplicationUser assignee = bug.getAssignedStaffMember();
             bugResponse.setUsernameOfAssignee(assignee.getUsername());
         }
         return bugResponse;
+    }
+
+    private BugCommentResponse mapToBugCommentResponse(BugComment comment) {
+        BugCommentResponse commentResponse = new BugCommentResponse();
+        commentResponse.setId(comment.getId());
+        commentResponse.setAuthor(comment.getAuthor());
+        commentResponse.setContent(comment.getContent());
+        return commentResponse;
     }
 
 }

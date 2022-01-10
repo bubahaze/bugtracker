@@ -1,12 +1,10 @@
 package com.poludnikiewicz.bugtracker.api;
 
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
-import com.poludnikiewicz.bugtracker.bug.Bug;
-import com.poludnikiewicz.bugtracker.bug.BugPriority;
-import com.poludnikiewicz.bugtracker.bug.BugService;
-import com.poludnikiewicz.bugtracker.bug.BugStatus;
+import com.poludnikiewicz.bugtracker.bug.*;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import lombok.AllArgsConstructor;
@@ -29,6 +27,7 @@ public class BugManagementController {
     private final ApplicationUserService userService;
 
     @GetMapping("/{id}")
+    @JsonView(Views.StaffSingleBug.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
         BugResponse bug = bugService.findBugResponseById(id);
@@ -36,6 +35,7 @@ public class BugManagementController {
     }
 
     @GetMapping("/")
+    @JsonView(Views.General.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showByPriority(@RequestParam String priority) {
         List<BugResponse> bugsByPriority = bugService.findBugsByPriority(priority);
@@ -43,6 +43,7 @@ public class BugManagementController {
     }
 
     @GetMapping("/assigned")
+    @JsonView(Views.General.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showBugsAssignedToPrincipal(Authentication authentication) {
         List<BugResponse> bugs = bugService.findAllBugsAssignedToPrincipal(authentication.getName());
@@ -51,9 +52,10 @@ public class BugManagementController {
     }
 
     @GetMapping(value = "/sort", params = "key")
+    @JsonView(Views.General.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@RequestParam String key,
-                                                                    @RequestParam (required = false) String direction) {
+                                                                    @RequestParam(required = false) String direction) {
 
         return new ResponseEntity<>(bugService.sortBugsAccordingToKey(key, direction), HttpStatus.OK);
     }
@@ -80,15 +82,20 @@ public class BugManagementController {
     public ResponseEntity<String> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
         Bug toAssign = bugService.findById(id);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
-        boolean isStaffOrAdmin = staffAssignee.getApplicationUserRole().name().equals("STAFF") ||
-                staffAssignee.getApplicationUserRole().name().equals("ADMIN");
-        if (isStaffOrAdmin) {
+
+        if (isStaffOrAdmin(staffAssignee)) {
             assignToBugAndChangeBugStatus(toAssign, staffAssignee);
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
         return new ResponseEntity<>(String.format("Bug with id %d has been assigned to %s", id, staffAssigneeUsername),
                 HttpStatus.NO_CONTENT);
+    }
+
+    private boolean isStaffOrAdmin(ApplicationUser staffAssignee) {
+        return staffAssignee.getApplicationUserRole().name().equals("STAFF") ||
+                staffAssignee.getApplicationUserRole().name().equals("ADMIN");
+
     }
 
     @PatchMapping("/staff/assign/{id}")
@@ -109,9 +116,10 @@ public class BugManagementController {
 
     @PatchMapping("/setPriority/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<String> setPriorityOfBug(@RequestParam BugPriority priority, @PathVariable Long id) {
+    public ResponseEntity<String> setPriorityOfBug(@RequestParam String priority, @PathVariable Long id) {
         Bug toSetPriority = bugService.findById(id);
-        toSetPriority.setPriority(priority);
+
+        toSetPriority.setPriority(BugPriority.sanitizePriorityInput(priority));
         bugService.saveBug(toSetPriority);
 
         return new ResponseEntity<>(String.format("Priority successfully set to %s", priority), HttpStatus.OK);
@@ -120,9 +128,9 @@ public class BugManagementController {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<String> setStatusOfBug(@PathVariable Long id, @RequestParam BugStatus status) {
+    public ResponseEntity<String> setStatusOfBug(@PathVariable Long id, @RequestParam String status) {
         Bug toSetStatus = bugService.findById(id);
-        toSetStatus.setStatus(status);
+        toSetStatus.setStatus(BugStatus.valueOf(status.toUpperCase()));
         bugService.saveBug(toSetStatus);
 
         return new ResponseEntity<>(String.format("Status successfully set to %s", status), HttpStatus.OK);
