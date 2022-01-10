@@ -34,8 +34,8 @@ public class BugController {
     }
 
     @GetMapping("/bug/{id}")
-    @JsonView(Views.Single.class)
-    public ResponseEntity<BugResponse> showByUniqueCode(@PathVariable Long id) {
+    @JsonView(Views.SingleBug.class)
+    public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
         BugResponse bugResponse = service.findBugResponseById(id);
         return new ResponseEntity<>(bugResponse, HttpStatus.OK);
     }

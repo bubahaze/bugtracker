@@ -27,7 +27,7 @@ public class BugManagementController {
     private final ApplicationUserService userService;
 
     @GetMapping("/{id}")
-    @JsonView(Views.Single.class)
+    @JsonView(Views.StaffSingleBug.class)
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
         BugResponse bug = bugService.findBugResponseById(id);
