@@ -4,6 +4,7 @@ import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.BugCommentService;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentRequest;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import javax.validation.Valid;
 @AllArgsConstructor
 @RestController
 @Validated
+@Tag(name = "Bug Comment API", description = "comments for particular bugs")
 public class BugCommentController {
 
     private final BugCommentService service;

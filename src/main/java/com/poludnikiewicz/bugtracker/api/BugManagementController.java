@@ -7,6 +7,7 @@ import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.bug.*;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequestMapping("/manage/api/bug")
 @AllArgsConstructor
 @Validated
+@Tag(name = "Bug Management", description = "API for Admin & Staff members")
 public class BugManagementController {
 
     private final BugService bugService;
@@ -114,6 +116,12 @@ public class BugManagementController {
 
     }
 
+    private void assignToBugAndChangeBugStatus(Bug bug, ApplicationUser applicationUser) {
+        bug.setAssignedStaffMember(applicationUser);
+        bug.setStatus(BugStatus.ASSIGNED);
+        bugService.saveBug(bug);
+    }
+
     @PatchMapping("/setPriority/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<String> setPriorityOfBug(@RequestParam String priority, @PathVariable Long id) {
@@ -134,12 +142,6 @@ public class BugManagementController {
         bugService.saveBug(toSetStatus);
 
         return new ResponseEntity<>(String.format("Status successfully set to %s", status), HttpStatus.OK);
-    }
-
-    private void assignToBugAndChangeBugStatus(Bug bug, ApplicationUser applicationUser) {
-        bug.setAssignedStaffMember(applicationUser);
-        bug.setStatus(BugStatus.ASSIGNED);
-        bugService.saveBug(bug);
     }
 
 }

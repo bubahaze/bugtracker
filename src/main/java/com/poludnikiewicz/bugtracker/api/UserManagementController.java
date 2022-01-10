@@ -4,6 +4,7 @@ import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserResponse;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/manage/api/users")
 @AllArgsConstructor
 @Validated
+@Tag(name = "User Management", description = "Managing users by Admin & Staff members")
 public class UserManagementController {
 
     private final ApplicationUserService userService;
