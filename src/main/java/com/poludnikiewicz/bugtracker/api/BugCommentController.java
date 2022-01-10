@@ -3,6 +3,7 @@ package com.poludnikiewicz.bugtracker.api;
 import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.BugCommentService;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentRequest;
+import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,18 +13,15 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.UUID;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/bugtracker/api/comment")
 @Validated
 public class BugCommentController {
 
     private final BugCommentService service;
 
-
-    @PostMapping("/")
+    @PostMapping("bugtracker/api/comment")
     public ResponseEntity<String> postBugComment(@Valid @RequestBody BugCommentRequest request, Authentication authentication) {
 
         String author = authentication.getName();
@@ -33,21 +31,20 @@ public class BugCommentController {
 
     }
 
-    @DeleteMapping("/{uuid}")
+    @DeleteMapping("manage/api/comment/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBugComment(@PathVariable UUID id) {
+    public void deleteBugComment(@PathVariable Long id) {
 
         service.deleteBugComment(id);
     }
 
-//    @PutMapping("/{commentId}")
-//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void updateBugComment(@ResponseBody BugComment comment, @PathVariable Long commentId, Authentication authentication) {
-//        service.updateBugComment(comment, commentId);
-//    }
+    @PatchMapping("manage/api/comment/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateBugComment(@PathVariable Long id, @RequestParam String content) {
+        service.updateBugComment(id, content);
+    }
 
-    //TODO: delete mapping & put/patch mapping of comments (only admin/staff/author allowed)
 
 }

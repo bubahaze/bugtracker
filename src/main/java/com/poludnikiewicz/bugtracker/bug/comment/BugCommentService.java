@@ -5,6 +5,7 @@ import com.poludnikiewicz.bugtracker.bug.BugRepository;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentRequest;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
+import com.poludnikiewicz.bugtracker.exception.CommentNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,17 +32,19 @@ public class BugCommentService {
                 .bug(bug)
                 .build();
 
-        //TODO: bug.addComment(comment) and addComment/removeComment in Bug entity ?
 
         commentRepository.save(comment);
     }
 
-    public void deleteBugComment(UUID id) {
+    public void deleteBugComment(Long id) {
         commentRepository.deleteById(id);
     }
 
-    public void updateBugComment(BugComment comment, Long commentId) {
-        //comm
+    public void updateBugComment(Long commentId, String content) {
+        BugComment commentToUpdate = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("Comment with id " + commentId + " not found."));
+       commentToUpdate.setContent(content);
+       commentRepository.save(commentToUpdate);
     }
 
 //    private BugCommentResponse mapToBugCommentResponse(BugComment comment) {
