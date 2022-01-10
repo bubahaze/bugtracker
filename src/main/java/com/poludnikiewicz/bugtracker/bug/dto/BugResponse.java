@@ -47,7 +47,7 @@ public class BugResponse {
 
     private BugPriority priority;
 
-    @JsonView(Views.Single.class)
+    @JsonView(Views.SingleBug.class)
     private List<BugCommentResponse> comments;
 
 
