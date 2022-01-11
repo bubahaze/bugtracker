@@ -19,7 +19,7 @@ public class BugRequest {
     private String description;
 
     @JsonAlias({"operatingSystem", "OS", "opSys", "opSystemWhereBugOccurred"})
-    @NotBlank(message = "Please specify the OS on which the issue occured")
+    @NotBlank(message = "Please specify the Operating System on which the issue occurred")
     private String opSystemWhereBugOccurred;
 
 }
