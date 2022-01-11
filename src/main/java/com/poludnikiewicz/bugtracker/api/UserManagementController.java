@@ -4,6 +4,8 @@ import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserResponse;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
@@ -24,14 +26,24 @@ public class UserManagementController {
 
     private final ApplicationUserService userService;
 
-    @GetMapping("/{id}")
+//    @GetMapping("/{id}")
+//    @Operation(summary = "Displays user with provided ID")
+//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+//    public ResponseEntity<ApplicationUserResponse> showById(@PathVariable Long id) {
+//        ApplicationUserResponse userResponse = userService.findApplicationUserResponseById(id);
+//        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+//    }
+
+    @GetMapping("/{username}")
+    @Operation(summary = "Displays user with provided username")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<ApplicationUserResponse> showById(@PathVariable Long id) {
-        ApplicationUserResponse userResponse = userService.findApplicationUserResponseById(id);
+    public ResponseEntity<ApplicationUserResponse> showByUsername(@PathVariable String username) {
+        ApplicationUserResponse userResponse = userService.findApplicationUserResponseByUsername(username);
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
     @GetMapping
+    @Operation(summary = "Displays all users")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<ApplicationUserResponse>> showAllUsers() {
         List<ApplicationUserResponse> allUsers = userService.findAllUsers();
@@ -39,23 +51,26 @@ public class UserManagementController {
     }
 
 
-    @PatchMapping("/setRole")
+    @PatchMapping("/set-role")
+    @Operation(summary = "Admin sets role of user")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> setRoleOfApplicationUser(@RequestParam String username,
-                                                                    @Valid @RequestParam ApplicationUserRole role) {
+                                                           @Parameter(description = "admin, staff," +
+                                                                   " user (case ignored)") @NotBlank @RequestParam String role) {
         ApplicationUser toSetRole = (ApplicationUser) userService.loadUserByUsername(username);
-        toSetRole.setApplicationUserRole(role);
+        toSetRole.setApplicationUserRole(ApplicationUserRole.sanitizeUserRole(role));
         userService.saveApplicationUser(toSetRole);
 
         return new ResponseEntity<>(String.format("%s has now the role of %s", username, role), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{username}")
+    @Operation(summary = "Admin deletes user with provided username")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteApplicationUser(@PathVariable Long id) {
-        userService.deleteApplicationUserById(id);
+    public ResponseEntity<String> deleteApplicationUser(@PathVariable String username) {
+        userService.deleteApplicationUserByUsername(username);
 
-        return new ResponseEntity<>(String.format("Application User with id %d successfully deleted", id),
+        return new ResponseEntity<>(String.format("Application User with username %s successfully deleted", username),
                 HttpStatus.OK);
     }
 }

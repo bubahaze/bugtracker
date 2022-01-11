@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @SpringBootApplication
 @SecurityScheme(name = "bugtracker-api", scheme = "basic", type = SecuritySchemeType.HTTP, in = SecuritySchemeIn.HEADER)
-@OpenAPIDefinition(info = @Info(title = "Bugtracker API", version = "1.0", description = "An app to report and repair bugs"))
+@OpenAPIDefinition(info = @Info(title = "Bugtracker API", version = "1.0", description = "An app to report and repair bugs."))
 public class BugtrackerApplication {
 
     public static void main(String[] args) {

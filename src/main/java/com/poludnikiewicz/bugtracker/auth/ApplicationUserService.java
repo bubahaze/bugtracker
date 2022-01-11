@@ -27,7 +27,7 @@ public class ApplicationUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         return applicationUserRepository.findByUsername(username)
-                .orElseThrow(() ->new UsernameNotFoundException(username + " not found" ));
+                .orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
     }
 
     public String signUpUser(ApplicationUser user) {
@@ -71,8 +71,10 @@ public class ApplicationUserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteApplicationUserById(Long id) {
-        applicationUserRepository.deleteById(id);
+    public void deleteApplicationUserByUsername(String username) {
+        ApplicationUser user = applicationUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with username %s not found.", username)));
+        applicationUserRepository.deleteById(user.getId());
 
     }
 
@@ -80,6 +82,12 @@ public class ApplicationUserService implements UserDetailsService {
 
         ApplicationUser applicationUser = applicationUserRepository.findById(id)
                 .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with id %d not found.", id)));
+        return mapToApplicationUserResponse(applicationUser);
+    }
+
+    public ApplicationUserResponse findApplicationUserResponseByUsername(String username) {
+        ApplicationUser applicationUser = applicationUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with username %s not found.", username)));
         return mapToApplicationUserResponse(applicationUser);
     }
 
@@ -91,4 +99,6 @@ public class ApplicationUserService implements UserDetailsService {
 
         return userResponse;
     }
+
+
 }

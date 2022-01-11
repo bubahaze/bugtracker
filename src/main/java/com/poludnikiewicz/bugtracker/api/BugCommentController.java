@@ -4,6 +4,7 @@ import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.BugCommentService;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentRequest;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,12 +19,13 @@ import javax.validation.Valid;
 @AllArgsConstructor
 @RestController
 @Validated
-@Tag(name = "Bug Comment API", description = "comments for particular bugs")
+@Tag(name = "Bug Comment API", description = "Comments for particular bugs")
 public class BugCommentController {
 
     private final BugCommentService service;
 
-    @PostMapping("bugtracker/api/comment")
+    @PostMapping("/api/comment")
+    @Operation(summary = "Any user posts a comment to particular bug")
     public ResponseEntity<String> postBugComment(@Valid @RequestBody BugCommentRequest request, Authentication authentication) {
 
         String author = authentication.getName();
@@ -33,16 +35,18 @@ public class BugCommentController {
 
     }
 
-    @DeleteMapping("manage/api/comment/{id}")
+    @DeleteMapping("/manage/api/comment/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    @Operation(summary = "Admin or Staff member delete comment with provided ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBugComment(@PathVariable Long id) {
 
         service.deleteBugComment(id);
     }
 
-    @PatchMapping("manage/api/comment/{id}")
+    @PatchMapping("/manage/api/comment/{id}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    @Operation(summary = "Admin or Staff member edit the content of comment with provided ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateBugComment(@PathVariable Long id, @RequestParam String content) {
         service.updateBugComment(id, content);
