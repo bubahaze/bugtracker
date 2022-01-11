@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 
 @AllArgsConstructor
 @RestController
@@ -48,7 +49,7 @@ public class BugCommentController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     @Operation(summary = "Admin or Staff member edit the content of comment with provided ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateBugComment(@PathVariable Long id, @RequestParam String content) {
+    public void updateBugComment(@PathVariable Long id, @NotBlank @RequestParam String content) {
         service.updateBugComment(id, content);
     }
 

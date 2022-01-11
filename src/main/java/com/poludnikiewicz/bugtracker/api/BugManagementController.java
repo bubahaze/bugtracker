@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
@@ -73,6 +74,7 @@ public class BugManagementController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Admin deletes bug with provided ID")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBug(@PathVariable Long id) {
         bugService.deleteBug(id);
@@ -81,6 +83,7 @@ public class BugManagementController {
 
 
     @PutMapping("/{id}")
+    @Operation(summary = "Admin updates bug with provided id")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> updateBug(@RequestBody BugRequest bug, @PathVariable Long id) {
 
@@ -92,7 +95,7 @@ public class BugManagementController {
     @PatchMapping("/assign/{id}")
     @Operation(summary = "Admin assigns bug to be solved by particular staff member")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> assignStaffToBug(@RequestParam String staffAssigneeUsername, @PathVariable Long id) {
+    public ResponseEntity<String> assignStaffToBug(@RequestParam @NotBlank String staffAssigneeUsername, @PathVariable Long id) {
         Bug toAssign = bugService.findById(id);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
 

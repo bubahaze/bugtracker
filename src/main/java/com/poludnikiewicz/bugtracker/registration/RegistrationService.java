@@ -31,7 +31,6 @@ public class RegistrationService {
                         request.getEmail(),
                         request.getPassword()));
 
-        String newToken = UUID.randomUUID().toString();
 
         String link = "http://localhost:9090/api/registration/confirm?token=" + token;
         emailSender.send(
