@@ -41,7 +41,7 @@ public class ApplicationUserService implements UserDetailsService {
             throw new IllegalStateException("This username is taken. Try another one.");
         }
 
-        if (userExists & user.isEnabled()) {
+        if (userExists) {
             throw new IllegalStateException("Email already registered.");
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
@@ -96,6 +96,7 @@ public class ApplicationUserService implements UserDetailsService {
         userResponse.setUsername(user.getUsername());
         userResponse.setEmail(user.getEmail());
         userResponse.setApplicationUserRole(user.getApplicationUserRole());
+        userResponse.setEnabled(user.isEnabled());
 
         return userResponse;
     }

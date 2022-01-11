@@ -11,5 +11,6 @@ public class ApplicationUserResponse {
     private String username;
     private String email;
     private ApplicationUserRole applicationUserRole;
+    private boolean isEnabled;
 
 }
