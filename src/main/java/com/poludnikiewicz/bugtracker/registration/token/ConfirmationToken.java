@@ -29,7 +29,7 @@ public class ConfirmationToken {
     private LocalDateTime expiresAt;
     private LocalDateTime confirmedAt;
     @ManyToOne(fetch = FetchType.LAZY)
-   // @JoinColumn(nullable = false, name = "application_user_id")
+    @JoinColumn(nullable = false, name = "application_user_id")
     private ApplicationUser applicationUser;
 
 
