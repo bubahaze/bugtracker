@@ -1,5 +1,7 @@
 package com.poludnikiewicz.bugtracker.auth;
 
+import com.poludnikiewicz.bugtracker.bug.Bug;
+import com.poludnikiewicz.bugtracker.bug.dto.BugShorterResponse;
 import com.poludnikiewicz.bugtracker.exception.ApplicationUserNotFoundException;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
@@ -88,7 +90,20 @@ public class ApplicationUserService implements UserDetailsService {
         userResponse.setEmail(user.getEmail());
         userResponse.setApplicationUserRole(user.getApplicationUserRole());
         userResponse.setEnabled(user.isEnabled());
+        if (!user.getAssignedBugs().isEmpty()) {
+            userResponse.setAssignedBugs(user.getAssignedBugs().stream()
+                    .map(this::mapToBugShorterResponse)
+                    .collect(Collectors.toList()));
+        }
         return userResponse;
+    }
+
+    private BugShorterResponse mapToBugShorterResponse(Bug bug) {
+        return BugShorterResponse.builder()
+                .summary(bug.getSummary())
+                .lastChangeAt(bug.getLastChangeAt())
+                .status(bug.getStatus())
+                .priority(bug.getPriority()).build();
     }
 
 
