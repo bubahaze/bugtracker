@@ -137,7 +137,6 @@ public class BugService {
                 .opSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred())
                 .usernameOfReporter(bug.getUsernameOfReporter())
                 .priority(bug.getPriority())
-               // .numberOfComments(Optional.of(bug.getBugComments().size()).orElse(null))
                 .numberOfComments(bug.getBugComments().size() == 0 ? null : bug.getBugComments().size())
                 .build();
 
