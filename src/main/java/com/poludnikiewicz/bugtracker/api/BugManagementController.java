@@ -33,7 +33,7 @@ public class BugManagementController {
 
     @GetMapping("/{id}")
     @JsonView(Views.StaffSingleBug.class)
-    @Operation(summary = "Displays bug by provided ID")
+    @Operation(summary = "Displays bug by provided ID along with comment IDs")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
         BugResponse bug = bugService.findBugResponseById(id);
