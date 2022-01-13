@@ -1,6 +1,7 @@
 package com.poludnikiewicz.bugtracker.bug.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.poludnikiewicz.bugtracker.bug.BugPriority;
 import com.poludnikiewicz.bugtracker.bug.BugStatus;
@@ -21,7 +22,7 @@ import java.util.List;
 @JsonView(Views.General.class)
 public class BugResponse {
 
-    private long id;
+    private Long id;
     private String summary;
     private String project;
     private String description;
@@ -34,6 +35,8 @@ public class BugResponse {
     private String opSystemWhereBugOccurred;
     private String usernameOfReporter;
     private BugPriority priority;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer numberOfComments;
     @JsonView(Views.SingleBug.class)
     private List<BugCommentResponse> comments;
 
