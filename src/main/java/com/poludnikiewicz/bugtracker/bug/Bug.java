@@ -26,46 +26,22 @@ public class Bug {
     @SequenceGenerator(name="bug_sequence", sequenceName = "bug_sequence", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bug_sequence")
     private Long id;
-
     private String summary;
-
     private String project;
-
     private String description;
-
     @CreationTimestamp
     private LocalDateTime creationDate;
-
     @UpdateTimestamp
     private LocalDateTime lastChangeAt;
-
-    private String uniqueCode;
-
     @Enumerated(EnumType.STRING)
     private BugStatus status;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="application_user_id")
     private ApplicationUser assignedStaffMember;
-
     private String opSystemWhereBugOccurred;
-
     private String usernameOfReporter;
-
     @Enumerated(EnumType.STRING)
     private BugPriority priority;
-
     @OneToMany(mappedBy = "bug", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BugComment> bugComments;
 
-
-    public void addComment(BugComment comment) {
-        bugComments.add(comment);
-        comment.setBug(this);
-    }
-
-    public void removeComment(BugComment comment) {
-        bugComments.remove(comment);
-        comment.setBug(null);
-    }
 }

@@ -1,5 +1,6 @@
 package com.poludnikiewicz.bugtracker.auth;
 
+import com.poludnikiewicz.bugtracker.bug.Bug;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import lombok.*;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 
@@ -31,6 +33,8 @@ public class ApplicationUser implements UserDetails {
     private ApplicationUserRole applicationUserRole;
     @OneToMany(mappedBy = "applicationUser", cascade = CascadeType.REMOVE)
     private Set<ConfirmationToken> tokens;
+    @OneToMany(mappedBy = "assignedStaffMember")
+    private List<Bug> assignedBugs;
     private boolean isAccountNonExpired;
     private boolean isAccountNonLocked;
     private boolean isCredentialsNonExpired;

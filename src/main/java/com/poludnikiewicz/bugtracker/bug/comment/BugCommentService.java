@@ -3,14 +3,11 @@ package com.poludnikiewicz.bugtracker.bug.comment;
 import com.poludnikiewicz.bugtracker.bug.Bug;
 import com.poludnikiewicz.bugtracker.bug.BugRepository;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentRequest;
-import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
 import com.poludnikiewicz.bugtracker.exception.CommentNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -32,7 +29,6 @@ public class BugCommentService {
                 .bug(bug)
                 .build();
 
-
         commentRepository.save(comment);
     }
 
@@ -46,12 +42,4 @@ public class BugCommentService {
        commentToUpdate.setContent(content);
        commentRepository.save(commentToUpdate);
     }
-
-//    private BugCommentResponse mapToBugCommentResponse(BugComment comment) {
-//        BugCommentResponse commentResponse = new BugCommentResponse();
-//        commentResponse.setBugId(comment.getBug().getId());
-//        commentResponse.setAuthor(comment.getAuthor());
-//        commentResponse.setContent(comment.getContent());
-//        return commentResponse;
-//    }
 }

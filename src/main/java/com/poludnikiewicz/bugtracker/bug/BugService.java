@@ -1,6 +1,7 @@
 package com.poludnikiewicz.bugtracker.bug;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
+import com.poludnikiewicz.bugtracker.auth.ApplicationUserRepository;
 import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,24 +21,21 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class BugService {
 
-    private final BugRepository bugRepo;
+    private final BugRepository bugRepository;
 
-    public String addBug(BugRequest request, String reporterUsername) {
+    public void addBug(BugRequest request, String reporterUsername) {
 
-        String uniqueCode = UUID.randomUUID().toString();
         Bug bug = Bug.builder()
                 .summary(request.getSummary())
                 .project(request.getProject())
                 .description(request.getDescription())
-                .uniqueCode(uniqueCode)
                 .status(BugStatus.REPORTED)
                 .opSystemWhereBugOccurred(request.getOpSystemWhereBugOccurred())
                 .usernameOfReporter(reporterUsername)
                 .priority(BugPriority.UNSET)
                 .build();
 
-        bugRepo.save(bug);
-        return uniqueCode;
+        bugRepository.save(bug);
     }
 
     public void updateBugByBugRequest(BugRequest bug, long id) {
@@ -46,26 +44,26 @@ public class BugService {
         bugToUpdate.setProject(bug.getProject());
         bugToUpdate.setDescription(bug.getDescription());
         bugToUpdate.setOpSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred());
-        bugRepo.save(bugToUpdate);
+        bugRepository.save(bugToUpdate);
     }
 
     public void deleteBug(Long id) {
-        bugRepo.deleteById(id);
+        bugRepository.deleteById(id);
     }
 
     public Bug findById(Long id) {
-        return bugRepo.findById(id)
+        return bugRepository.findById(id)
                 .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found."));
     }
 
     public BugResponse findBugResponseById(Long id) {
-        Bug bug = bugRepo.findById(id)
+        Bug bug = bugRepository.findById(id)
                 .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found."));
         return mapToBugResponse(bug);
     }
 
     public List<BugResponse> findByProject(String project) {
-        return bugRepo
+        return bugRepository
                 .findByProjectContainingIgnoreCaseOrderByLastChangeAtDesc(project)
                 .stream()
                 .map(this::mapToBugResponse)
@@ -74,7 +72,7 @@ public class BugService {
     }
 
     public List<BugResponse> findByKeyword(String keyword) {
-        return bugRepo
+        return bugRepository
                 .findByKeyword(keyword)
                 .stream()
                 .map(this::mapToBugResponse)
@@ -82,17 +80,12 @@ public class BugService {
     }
 
     public Bug saveBug(Bug bug) {
-        return bugRepo.save(bug);
+        return bugRepository.save(bug);
     }
 
-    public BugResponse findByUniqueCode(String uniqueCode) {
-        Bug bug = bugRepo.findByUniqueCode(uniqueCode)
-                .orElseThrow(() -> new BugNotFoundException("Bug with unique code " + uniqueCode + " not found."));
-        return mapToBugResponse(bug);
-    }
 
     public List<BugResponse> findAllBugs() {
-        return (bugRepo
+        return (bugRepository
                 .findAll())
                 .stream()
                 .map(this::mapToBugResponse)
@@ -100,7 +93,7 @@ public class BugService {
     }
 
     public List<BugResponse> findAllBugsAssignedToPrincipal(String username) {
-        return bugRepo.findAllBugsAssignedToPrincipal(username).stream()
+        return bugRepository.findAllBugsAssignedToPrincipal(username).stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
     }
@@ -110,7 +103,7 @@ public class BugService {
         if (direction == null || direction.equalsIgnoreCase("ASC")) {
             sortDir = Sort.Direction.ASC;
         }
-        return bugRepo.findAll(Sort.by(sortDir, key))
+        return bugRepository.findAll(Sort.by(sortDir, key))
                 .stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
@@ -119,14 +112,14 @@ public class BugService {
     public List<BugResponse> findBugsByPriority(String priority) {
         BugPriority bugPriority = BugPriority.sanitizePriorityInput(priority);
 
-        return bugRepo.findByPriority(bugPriority)
+        return bugRepository.findByPriority(bugPriority)
                 .stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
     }
 
     public List<BugResponse> findByReporter(String reporterUsername) {
-        return bugRepo.findByUsernameOfReporter(reporterUsername)
+        return bugRepository.findByUsernameOfReporter(reporterUsername)
                 .stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
@@ -140,14 +133,14 @@ public class BugService {
                 .project(bug.getProject())
                 .creationDate(bug.getCreationDate())
                 .lastChangeAt(bug.getLastChangeAt())
-                .uniqueCode(bug.getUniqueCode())
                 .status(bug.getStatus())
                 .opSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred())
                 .usernameOfReporter(bug.getUsernameOfReporter())
                 .priority(bug.getPriority())
+                .numberOfComments(bug.getBugComments().size() == 0 ? null : bug.getBugComments().size())
                 .build();
 
-        if (bug.getBugComments() != null) {
+        if (!bug.getBugComments().isEmpty()) {
             bugResponse.setComments(bug.getBugComments().stream()
                     .map(this::mapToBugCommentResponse)
                     .collect(Collectors.toList()));

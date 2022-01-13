@@ -1,5 +1,7 @@
 package com.poludnikiewicz.bugtracker.auth;
 
+import com.poludnikiewicz.bugtracker.bug.Bug;
+import com.poludnikiewicz.bugtracker.bug.dto.BugShorterResponse;
 import com.poludnikiewicz.bugtracker.exception.ApplicationUserNotFoundException;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
@@ -25,9 +27,8 @@ public class ApplicationUserService implements UserDetailsService {
 
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         return applicationUserRepository.findByUsername(username)
-                .orElseThrow(() ->new UsernameNotFoundException(username + " not found" ));
+                .orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
     }
 
     public String signUpUser(ApplicationUser user) {
@@ -41,7 +42,7 @@ public class ApplicationUserService implements UserDetailsService {
             throw new IllegalStateException("This username is taken. Try another one.");
         }
 
-        if (userExists & user.isEnabled()) {
+        if (userExists) {
             throw new IllegalStateException("Email already registered.");
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
@@ -71,15 +72,15 @@ public class ApplicationUserService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-    public void deleteApplicationUserById(Long id) {
-        applicationUserRepository.deleteById(id);
-
+    public void deleteApplicationUserByUsername(String username) {
+        ApplicationUser user = applicationUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with username %s not found.", username)));
+        applicationUserRepository.deleteById(user.getId());
     }
 
-    public ApplicationUserResponse findApplicationUserResponseById(Long id) {
-
-        ApplicationUser applicationUser = applicationUserRepository.findById(id)
-                .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with id %d not found.", id)));
+    public ApplicationUserResponse findApplicationUserResponseByUsername(String username) {
+        ApplicationUser applicationUser = applicationUserRepository.findByUsername(username)
+                .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with username %s not found.", username)));
         return mapToApplicationUserResponse(applicationUser);
     }
 
@@ -88,7 +89,22 @@ public class ApplicationUserService implements UserDetailsService {
         userResponse.setUsername(user.getUsername());
         userResponse.setEmail(user.getEmail());
         userResponse.setApplicationUserRole(user.getApplicationUserRole());
-
+        userResponse.setEnabled(user.isEnabled());
+        if (!user.getAssignedBugs().isEmpty()) {
+            userResponse.setAssignedBugs(user.getAssignedBugs().stream()
+                    .map(this::mapToBugShorterResponse)
+                    .collect(Collectors.toList()));
+        }
         return userResponse;
     }
+
+    private BugShorterResponse mapToBugShorterResponse(Bug bug) {
+        return BugShorterResponse.builder()
+                .summary(bug.getSummary())
+                .lastChangeAt(bug.getLastChangeAt())
+                .status(bug.getStatus())
+                .priority(bug.getPriority()).build();
+    }
+
+
 }
