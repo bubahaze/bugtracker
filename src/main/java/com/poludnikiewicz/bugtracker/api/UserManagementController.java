@@ -26,14 +26,6 @@ public class UserManagementController {
 
     private final ApplicationUserService userService;
 
-//    @GetMapping("/{id}")
-//    @Operation(summary = "Displays user with provided ID")
-//    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-//    public ResponseEntity<ApplicationUserResponse> showById(@PathVariable Long id) {
-//        ApplicationUserResponse userResponse = userService.findApplicationUserResponseById(id);
-//        return new ResponseEntity<>(userResponse, HttpStatus.OK);
-//    }
-
     @GetMapping("/{username}")
     @Operation(summary = "Displays user with provided username")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")

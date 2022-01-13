@@ -25,7 +25,6 @@ public class ApplicationUserService implements UserDetailsService {
 
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
         return applicationUserRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username + " not found"));
     }
@@ -75,14 +74,6 @@ public class ApplicationUserService implements UserDetailsService {
         ApplicationUser user = applicationUserRepository.findByUsername(username)
                 .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with username %s not found.", username)));
         applicationUserRepository.deleteById(user.getId());
-
-    }
-
-    public ApplicationUserResponse findApplicationUserResponseById(Long id) {
-
-        ApplicationUser applicationUser = applicationUserRepository.findById(id)
-                .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with id %d not found.", id)));
-        return mapToApplicationUserResponse(applicationUser);
     }
 
     public ApplicationUserResponse findApplicationUserResponseByUsername(String username) {
@@ -97,7 +88,6 @@ public class ApplicationUserService implements UserDetailsService {
         userResponse.setEmail(user.getEmail());
         userResponse.setApplicationUserRole(user.getApplicationUserRole());
         userResponse.setEnabled(user.isEnabled());
-
         return userResponse;
     }
 

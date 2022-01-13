@@ -22,31 +22,18 @@ import java.util.List;
 public class BugResponse {
 
     private long id;
-
     private String summary;
-
     private String project;
-
     private String description;
-
     @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss")
     private LocalDateTime creationDate;
-
     @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss")
     private LocalDateTime lastChangeAt;
-
-    private String uniqueCode;
-
     private BugStatus status;
-
     private String usernameOfAssignee;
-
     private String opSystemWhereBugOccurred;
-
     private String usernameOfReporter;
-
     private BugPriority priority;
-
     @JsonView(Views.SingleBug.class)
     private List<BugCommentResponse> comments;
 

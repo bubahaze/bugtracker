@@ -1,9 +1,7 @@
 package com.poludnikiewicz.bugtracker.api;
 
-import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.BugCommentService;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentRequest;
-import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;

@@ -12,8 +12,6 @@ import java.util.Optional;
 @Repository
 public interface BugRepository extends JpaRepository<Bug, Long> {
 
-    Optional<Bug> findByUniqueCode(String uniqueCode);
-
     List<Bug> findByProjectContainingIgnoreCaseOrderByLastChangeAtDesc(String project);
 
     @Query("select b from Bug b where lower(b.summary) like lower(concat('%', ?1,'%'))" +

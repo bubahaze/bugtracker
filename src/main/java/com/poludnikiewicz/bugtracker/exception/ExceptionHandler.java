@@ -24,10 +24,9 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
 
 
-
-    @org.springframework.web.bind.annotation.ExceptionHandler(value = { IllegalStateException.class })
+    @org.springframework.web.bind.annotation.ExceptionHandler(value = {IllegalStateException.class})
     public ResponseEntity<Object> handleIllegalStateException(IllegalStateException ex) {
-        LOGGER.error("Illegal State Exception: ",ex.getMessage());
+        LOGGER.error("Illegal State Exception: ", ex.getMessage());
 
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
@@ -99,7 +98,7 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         List<String> details = new ArrayList<>();
-        for(ObjectError error : ex.getBindingResult().getAllErrors()) {
+        for (ObjectError error : ex.getBindingResult().getAllErrors()) {
             details.add(error.getDefaultMessage());
         }
         ErrorResponse error = new ErrorResponse("Validation Failed", details);

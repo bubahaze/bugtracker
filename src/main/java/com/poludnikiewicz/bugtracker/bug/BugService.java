@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,14 +21,12 @@ public class BugService {
 
     private final BugRepository bugRepo;
 
-    public String addBug(BugRequest request, String reporterUsername) {
+    public void addBug(BugRequest request, String reporterUsername) {
 
-        String uniqueCode = UUID.randomUUID().toString();
         Bug bug = Bug.builder()
                 .summary(request.getSummary())
                 .project(request.getProject())
                 .description(request.getDescription())
-                .uniqueCode(uniqueCode)
                 .status(BugStatus.REPORTED)
                 .opSystemWhereBugOccurred(request.getOpSystemWhereBugOccurred())
                 .usernameOfReporter(reporterUsername)
@@ -37,7 +34,6 @@ public class BugService {
                 .build();
 
         bugRepo.save(bug);
-        return uniqueCode;
     }
 
     public void updateBugByBugRequest(BugRequest bug, long id) {
@@ -85,11 +81,6 @@ public class BugService {
         return bugRepo.save(bug);
     }
 
-    public BugResponse findByUniqueCode(String uniqueCode) {
-        Bug bug = bugRepo.findByUniqueCode(uniqueCode)
-                .orElseThrow(() -> new BugNotFoundException("Bug with unique code " + uniqueCode + " not found."));
-        return mapToBugResponse(bug);
-    }
 
     public List<BugResponse> findAllBugs() {
         return (bugRepo
@@ -140,7 +131,6 @@ public class BugService {
                 .project(bug.getProject())
                 .creationDate(bug.getCreationDate())
                 .lastChangeAt(bug.getLastChangeAt())
-                .uniqueCode(bug.getUniqueCode())
                 .status(bug.getStatus())
                 .opSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred())
                 .usernameOfReporter(bug.getUsernameOfReporter())

@@ -77,9 +77,9 @@ public class BugController {
     public ResponseEntity<String> postBug(@Valid @RequestBody BugRequest bug, Authentication authentication) {
         UserDetails userDetailsOfReporter = (UserDetails) authentication.getPrincipal();
         String reporterUsername = userDetailsOfReporter.getUsername();
-        String uniqueCode = service.addBug(bug, reporterUsername);
+        service.addBug(bug, reporterUsername);
 
-        return new ResponseEntity<>(String.format("Bug successfully reported. The unique ID of reported bug is: %s", uniqueCode),
+        return new ResponseEntity<>("Bug successfully reported.",
                 HttpStatus.CREATED);
     }
 
