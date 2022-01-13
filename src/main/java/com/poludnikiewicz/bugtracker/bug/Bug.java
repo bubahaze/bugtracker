@@ -36,7 +36,6 @@ public class Bug {
     @Enumerated(EnumType.STRING)
     private BugStatus status;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="application_user_id")
     private ApplicationUser assignedStaffMember;
     private String opSystemWhereBugOccurred;
     private String usernameOfReporter;
