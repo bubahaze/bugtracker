@@ -39,21 +39,7 @@ public class ApplicationUser implements UserDetails {
     private boolean isAccountNonLocked;
     private boolean isCredentialsNonExpired;
     private boolean isEnabled;
-
-    public ApplicationUser(String username, String firstName, String lastName, String email, String password, ApplicationUserRole applicationUserRole,
-                           boolean isAccountNonExpired, boolean isAccountNonLocked,
-                           boolean isCredentialsNonExpired, boolean isEnabled) {
-        this.username = username;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.applicationUserRole = applicationUserRole;
-        this.isAccountNonExpired = isAccountNonExpired;
-        this.isAccountNonLocked = isAccountNonLocked;
-        this.isCredentialsNonExpired = isCredentialsNonExpired;
-        this.isEnabled = isEnabled;
-    }
+    
 
     public ApplicationUser(String username, String firstName, String lastName, String email, String password) {
         this.username = username;
