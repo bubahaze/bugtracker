@@ -5,6 +5,7 @@ import com.poludnikiewicz.bugtracker.bug.dto.BugShorterResponse;
 import com.poludnikiewicz.bugtracker.exception.ApplicationUserNotFoundException;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
+import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -78,6 +79,12 @@ public class ApplicationUserService implements UserDetailsService {
         applicationUserRepository.deleteById(user.getId());
     }
 
+    public List<ApplicationUserResponse> findByRole(String role) {
+        ApplicationUserRole userRole = ApplicationUserRole.sanitizeUserRole(role);
+       return applicationUserRepository.findByApplicationUserRole(userRole).stream()
+               .map(this::mapToApplicationUserResponse).collect(Collectors.toList());
+    }
+
     public ApplicationUserResponse findApplicationUserResponseByUsername(String username) {
         ApplicationUser applicationUser = applicationUserRepository.findByUsername(username)
                 .orElseThrow(() -> new ApplicationUserNotFoundException(String.format("User with username %s not found.", username)));
@@ -105,6 +112,5 @@ public class ApplicationUserService implements UserDetailsService {
                 .status(bug.getStatus())
                 .priority(bug.getPriority()).build();
     }
-
 
 }

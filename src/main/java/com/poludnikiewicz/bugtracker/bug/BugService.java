@@ -1,7 +1,6 @@
 package com.poludnikiewicz.bugtracker.bug;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
-import com.poludnikiewicz.bugtracker.auth.ApplicationUserRepository;
 import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
