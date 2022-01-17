@@ -75,11 +75,12 @@ public class BugController {
     @PostMapping("/new")
     @Operation(summary = "Reports new bug")
     public ResponseEntity<String> postBug(@Valid @RequestBody BugRequest bug, Authentication authentication) {
-        UserDetails userDetailsOfReporter = (UserDetails) authentication.getPrincipal();
-        String reporterUsername = userDetailsOfReporter.getUsername();
-        service.addBug(bug, reporterUsername);
+        //UserDetails userDetailsOfReporter = (UserDetails) authentication.getPrincipal();
+        //String reporterUsername = userDetailsOfReporter.getUsername();
+        String reporterUsername = authentication.getName();
+        Long id = service.addBug(bug, reporterUsername);
 
-        return new ResponseEntity<>("Bug successfully reported.",
+        return new ResponseEntity<>("Bug successfully reported. ID of bug: " + id,
                 HttpStatus.CREATED);
     }
 

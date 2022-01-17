@@ -35,11 +35,13 @@ public class ApplicationUser implements UserDetails {
     private Set<ConfirmationToken> tokens;
     @OneToMany(mappedBy = "assignedStaffMember")
     private List<Bug> assignedBugs;
+    @OneToMany(mappedBy = "reporterOfBug")
+    private List<Bug> reportedBugs;
     private boolean isAccountNonExpired;
     private boolean isAccountNonLocked;
     private boolean isCredentialsNonExpired;
     private boolean isEnabled;
-    
+
 
     public ApplicationUser(String username, String firstName, String lastName, String email, String password) {
         this.username = username;

@@ -20,5 +20,7 @@ public class ApplicationUserResponse {
     private boolean isEnabled;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<BugShorterResponse> assignedBugs;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<BugShorterResponse> reportedBugs;
 
 }
