@@ -29,6 +29,7 @@ public class BugCommentController {
 
         String author = authentication.getName();
         service.addComment(request, author);
+        service.sendNotificationEmailToBugReporterAndAssignee(author, request.getBugId(), request.getContent());
 
         return new ResponseEntity<>("Comment posted to Bug with id " + request.getBugId(), HttpStatus.CREATED);
 
