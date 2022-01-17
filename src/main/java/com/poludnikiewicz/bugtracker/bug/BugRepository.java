@@ -17,7 +17,7 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
     @Query("select b from Bug b where lower(b.summary) like lower(concat('%', ?1,'%'))" +
             " or lower(b.description) like lower(concat('%', ?1,'%')) or lower(b.project) like" +
             " lower(concat('%', ?1,'%')) or lower(b.opSystemWhereBugOccurred) like lower(concat('%', ?1,'%')) " +
-            "or lower(b.usernameOfReporter) like lower(concat('%', ?1,'%'))")
+            "or lower(b.reporterOfBug.username) like lower(concat('%', ?1,'%'))")
     List<Bug> findByKeyword(String keyword);
 
     @Query("select b from Bug b where b.assignedStaffMember.username = ?1")
@@ -25,5 +25,6 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
 
     List<Bug> findByPriority(BugPriority priority);
 
+    @Query("select b from Bug b where b.reporterOfBug.username = ?1")
     List<Bug> findByUsernameOfReporter(String reporterUsername);
 }

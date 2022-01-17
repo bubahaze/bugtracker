@@ -102,6 +102,11 @@ public class ApplicationUserService implements UserDetailsService {
                     .map(this::mapToBugShorterResponse)
                     .collect(Collectors.toList()));
         }
+        if (!user.getReportedBugs().isEmpty()) {
+            userResponse.setReportedBugs(user.getReportedBugs().stream()
+                    .map(this::mapToBugShorterResponse)
+                    .collect(Collectors.toList()));
+        }
         return userResponse;
     }
 
@@ -110,7 +115,8 @@ public class ApplicationUserService implements UserDetailsService {
                 .summary(bug.getSummary())
                 .lastChangeAt(bug.getLastChangeAt())
                 .status(bug.getStatus())
-                .priority(bug.getPriority()).build();
+                .priority(bug.getPriority())
+                .build();
     }
 
 }
