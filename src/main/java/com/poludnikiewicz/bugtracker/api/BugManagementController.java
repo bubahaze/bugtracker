@@ -7,6 +7,7 @@ import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.bug.*;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
+import com.poludnikiewicz.bugtracker.email.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,7 @@ public class BugManagementController {
 
     private final BugService bugService;
     private final ApplicationUserService userService;
+    private final EmailService emailService;
 
     @GetMapping("/{id}")
     @JsonView(Views.StaffSingleBug.class)
@@ -77,6 +79,8 @@ public class BugManagementController {
     @Operation(summary = "Admin deletes bug with provided ID")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBug(@PathVariable Long id) {
+        Bug bug = bugService.findById(id);
+        drawNotificationEmail(bug.getReporterOfBug().getEmail(), "bug deleted");
         bugService.deleteBug(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -96,11 +100,12 @@ public class BugManagementController {
     @Operation(summary = "Admin assigns bug to be solved by particular staff member")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> assignStaffToBug(@RequestParam @NotBlank String staffAssigneeUsername, @PathVariable Long id) {
-        Bug toAssign = bugService.findById(id);
+        Bug bug = bugService.findById(id);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
 
         if (isStaffOrAdmin(staffAssignee)) {
-            assignToBugAndChangeBugStatus(toAssign, staffAssignee);
+            assignToBugAndChangeBugStatus(bug, staffAssignee);
+            drawNotificationEmail(bug.getReporterOfBug().getEmail(), staffAssignee);
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
@@ -119,9 +124,10 @@ public class BugManagementController {
     @PreAuthorize("hasRole('ROLE_STAFF')")
     public ResponseEntity<String> assignBugToPrincipal(@PathVariable Long id, Authentication authentication) {
         String usernameOfPrincipal = authentication.getName();
-        Bug toAssign = bugService.findById(id);
+        Bug bug = bugService.findById(id);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(usernameOfPrincipal);
-        assignToBugAndChangeBugStatus(toAssign, staffAssignee);
+        assignToBugAndChangeBugStatus(bug, staffAssignee);
+        drawNotificationEmail(bug.getReporterOfBug().getEmail(), staffAssignee);
 
         return new ResponseEntity<>(String.format("Bug with id %d successfully assigned to you", id), HttpStatus.OK);
 
@@ -137,12 +143,15 @@ public class BugManagementController {
     @Operation(summary = "Admin or Staff member sets priority of bug")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<String> setPriorityOfBug(@PathVariable Long id, @Parameter(description = "Priorities: P1_CRITICAL, P2_IMPORTANT," +
-            " P3_NORMAL, P4_MARGINAL, P5_REDUNTANT, UNSET." +
+            " P3_NORMAL, P4_MARGINAL, P5_REDUNDANT, UNSET." +
             " Also possible input: p3, marginal etc.") @RequestParam String priority) {
-        Bug toSetPriority = bugService.findById(id);
+        Bug bug = bugService.findById(id);
 
-        toSetPriority.setPriority(BugPriority.sanitizePriorityInput(priority));
-        bugService.saveBug(toSetPriority);
+        BugPriority priorityToSet = BugPriority.sanitizePriorityInput(priority);
+        bug.setPriority(priorityToSet);
+        bugService.saveBug(bug);
+        drawNotificationEmail(bug.getReporterOfBug().getEmail(), priorityToSet);
+
 
         return new ResponseEntity<>(String.format("Priority successfully set to %s", priority), HttpStatus.OK);
     }
@@ -153,11 +162,32 @@ public class BugManagementController {
     @Operation(summary = "Admin or Staff member sets status of bug")
     public ResponseEntity<String> setStatusOfBug(@PathVariable Long id, @Parameter(description = "Options: Reported," +
             " Assigned, Resolved") @RequestParam String status) {
-        Bug toSetStatus = bugService.findById(id);
-        toSetStatus.setStatus(BugStatus.valueOf(status.toUpperCase()));
-        bugService.saveBug(toSetStatus);
+        Bug bug = bugService.findById(id);
+        BugStatus statusToSet = BugStatus.valueOf(status.toUpperCase());
+        bug.setStatus(statusToSet);
+        bugService.saveBug(bug);
+        drawNotificationEmail(bug.getReporterOfBug().getEmail(), statusToSet);
 
-        return new ResponseEntity<>(String.format("Status successfully set to %s", status), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("Status successfully set to %s", statusToSet), HttpStatus.OK);
+    }
+
+    private void drawNotificationEmail(String email, Object objectOfChange) {
+        String detail = "";
+        if (objectOfChange instanceof BugStatus) {
+            detail = "Current bug status: " + ((BugStatus) objectOfChange).name();
+        } else if (objectOfChange instanceof BugPriority) {
+            detail = "Current bug priority: " + ((BugPriority) objectOfChange).name();
+        } else if (objectOfChange instanceof ApplicationUser) {
+            detail = "The bug is now assigned to one of our skilled staff members that will work at resolving it";
+        } else if (objectOfChange instanceof String) {
+            detail = "The administrator decided to delete your reported bug from our database. If you need more information" +
+                    " do not hesitate to contact us";
+        }
+
+        String content = String.format("The bug you have reported has recently been updated by our Staff. %s.", detail);
+
+        emailService.sendNotificationEmail(email, content);
+
     }
 
 }
