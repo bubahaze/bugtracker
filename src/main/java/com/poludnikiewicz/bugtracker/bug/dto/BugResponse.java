@@ -38,6 +38,7 @@ public class BugResponse {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Integer numberOfComments;
     @JsonView(Views.SingleBug.class)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<BugCommentResponse> comments;
 
 
