@@ -21,10 +21,9 @@ public class BugCommentService {
     private final EmailService emailService;
 
 
-    public void addComment(BugCommentRequest request, String author) {
-        Long id = request.getBugId();
-        Bug bug = bugRepository.findById(id)
-                .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found."));
+    public void addComment(Long bugId, BugCommentRequest request, String author) {
+        Bug bug = bugRepository.findById(bugId)
+                .orElseThrow(() -> new BugNotFoundException("Bug with id " + bugId + " not found."));
 
         BugComment comment = BugComment.builder()
                 .content(request.getContent())

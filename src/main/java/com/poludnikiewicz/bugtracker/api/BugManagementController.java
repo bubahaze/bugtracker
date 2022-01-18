@@ -23,7 +23,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
-@RequestMapping("/manage/api/bug")
+@RequestMapping("/manage/bugs")
 @AllArgsConstructor
 @Validated
 @Tag(name = "Bug Management", description = "API for Admin & Staff members")
@@ -33,12 +33,12 @@ public class BugManagementController {
     private final ApplicationUserService userService;
     private final EmailService emailService;
 
-    @GetMapping("/{id}")
+    @GetMapping("/{bugId}")
     @JsonView(Views.StaffSingleBug.class)
     @Operation(summary = "Displays bug by provided ID along with comment IDs")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
-        BugResponse bug = bugService.findBugResponseById(id);
+    public ResponseEntity<BugResponse> showById(@PathVariable Long bugId) {
+        BugResponse bug = bugService.findBugResponseById(bugId);
         return new ResponseEntity<>(bug, HttpStatus.OK);
     }
 
@@ -75,32 +75,32 @@ public class BugManagementController {
         return new ResponseEntity<>(bugService.sortBugsAccordingToKey(key, direction), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{bugId}")
     @Operation(summary = "Admin deletes bug with provided ID")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<?> deleteBug(@PathVariable Long id) {
-        Bug bug = bugService.findById(id);
+    public ResponseEntity<?> deleteBug(@PathVariable Long bugId) {
+        Bug bug = bugService.findById(bugId);
         drawNotificationEmail(bug.getReporterOfBug().getEmail(), "bug deleted");
-        bugService.deleteBug(id);
+        bugService.deleteBug(bugId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
 
-    @PutMapping("/{id}")
-    @Operation(summary = "Admin updates bug with provided id")
+    @PutMapping("/{bugId}")
+    @Operation(summary = "Admin updates bug with provided ID")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateBug(@RequestBody BugRequest bug, @PathVariable Long id) {
+    public ResponseEntity<String> updateBug(@RequestBody BugRequest bug, @PathVariable Long bugId) {
 
-        bugService.updateBugByBugRequest(bug, id);
+        bugService.updateBugByBugRequest(bug, bugId);
 
-        return new ResponseEntity<>(String.format("Bug with %d successfully updated", id), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("Bug with %d successfully updated", bugId), HttpStatus.OK);
     }
 
-    @PatchMapping("/assign/{id}")
+    @PatchMapping("/assignee/{bugId}")
     @Operation(summary = "Admin assigns bug to be solved by particular staff member")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> assignStaffToBug(@RequestParam @NotBlank String staffAssigneeUsername, @PathVariable Long id) {
-        Bug bug = bugService.findById(id);
+    public ResponseEntity<String> assignStaffToBug(@RequestParam @NotBlank String staffAssigneeUsername, @PathVariable Long bugId) {
+        Bug bug = bugService.findById(bugId);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(staffAssigneeUsername);
 
         if (isStaffOrAdmin(staffAssignee)) {
@@ -109,7 +109,7 @@ public class BugManagementController {
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
-        return new ResponseEntity<>(String.format("Bug with id %d has been assigned to %s", id, staffAssigneeUsername),
+        return new ResponseEntity<>(String.format("Bug with id %d has been assigned to %s", bugId, staffAssigneeUsername),
                 HttpStatus.OK);
     }
 
@@ -119,17 +119,17 @@ public class BugManagementController {
 
     }
 
-    @PatchMapping("/staff/assign/{id}")
+    @PatchMapping("/staff/assignee/{bugId}")
     @Operation(summary = "Staff member assigns bug with provided ID to himself/herself")
     @PreAuthorize("hasRole('ROLE_STAFF')")
-    public ResponseEntity<String> assignBugToPrincipal(@PathVariable Long id, Authentication authentication) {
+    public ResponseEntity<String> assignBugToPrincipal(@PathVariable Long bugId, Authentication authentication) {
         String usernameOfPrincipal = authentication.getName();
-        Bug bug = bugService.findById(id);
+        Bug bug = bugService.findById(bugId);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(usernameOfPrincipal);
         assignToBugAndChangeBugStatus(bug, staffAssignee);
         drawNotificationEmail(bug.getReporterOfBug().getEmail(), staffAssignee);
 
-        return new ResponseEntity<>(String.format("Bug with id %d successfully assigned to you", id), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("Bug with id %d successfully assigned to you", bugId), HttpStatus.OK);
 
     }
 
@@ -139,13 +139,13 @@ public class BugManagementController {
         bugService.saveBug(bug);
     }
 
-    @PatchMapping("/set-priority/{id}")
+    @PatchMapping("/priority/{bugId}")
     @Operation(summary = "Admin or Staff member sets priority of bug")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<String> setPriorityOfBug(@PathVariable Long id, @Parameter(description = "Priorities: P1_CRITICAL, P2_IMPORTANT," +
+    public ResponseEntity<String> setPriorityOfBug(@PathVariable Long bugId, @Parameter(description = "Priorities: P1_CRITICAL, P2_IMPORTANT," +
             " P3_NORMAL, P4_MARGINAL, P5_REDUNDANT, UNSET." +
             " Also possible input: p3, marginal etc.") @RequestParam String priority) {
-        Bug bug = bugService.findById(id);
+        Bug bug = bugService.findById(bugId);
 
         BugPriority priorityToSet = BugPriority.sanitizePriorityInput(priority);
         bug.setPriority(priorityToSet);
@@ -157,12 +157,12 @@ public class BugManagementController {
     }
 
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{bugId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     @Operation(summary = "Admin or Staff member sets status of bug")
-    public ResponseEntity<String> setStatusOfBug(@PathVariable Long id, @Parameter(description = "Options: Reported," +
+    public ResponseEntity<String> setStatusOfBug(@PathVariable Long bugId, @Parameter(description = "Options: Reported," +
             " Assigned, Resolved") @RequestParam String status) {
-        Bug bug = bugService.findById(id);
+        Bug bug = bugService.findById(bugId);
         BugStatus statusToSet = BugStatus.valueOf(status.toUpperCase());
         bug.setStatus(statusToSet);
         bugService.saveBug(bug);

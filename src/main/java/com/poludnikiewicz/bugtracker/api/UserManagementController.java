@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
-@RequestMapping("/manage/api/users")
+@RequestMapping("/manage/users")
 @AllArgsConstructor
 @Validated
 @Tag(name = "User Management", description = "Managing users by Admin & Staff members")
@@ -51,7 +51,7 @@ public class UserManagementController {
     }
 
 
-    @PatchMapping("/set-role")
+    @PatchMapping("/role")
     @Operation(summary = "Admin sets role of user")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> setRoleOfApplicationUser(@RequestParam String username,
