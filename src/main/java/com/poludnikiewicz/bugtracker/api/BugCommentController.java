@@ -23,32 +23,33 @@ public class BugCommentController {
 
     private final BugCommentService service;
 
-    @PostMapping("/api/comment")
+    @PostMapping("{bugId}/comments")
     @Operation(summary = "Any user posts a comment to particular bug")
-    public ResponseEntity<String> postBugComment(@Valid @RequestBody BugCommentRequest request, Authentication authentication) {
+    public ResponseEntity<String> postBugComment(@PathVariable Long bugId, @Valid @RequestBody BugCommentRequest request, Authentication authentication) {
 
         String author = authentication.getName();
-        service.addComment(request, author);
+        service.addComment(bugId, request, author);
+        service.sendNotificationEmailToBugReporterAndAssignee(author, bugId, request.getContent());
 
-        return new ResponseEntity<>("Comment posted to Bug with id " + request.getBugId(), HttpStatus.CREATED);
+        return new ResponseEntity<>("Comment posted to Bug with id " + bugId, HttpStatus.CREATED);
 
     }
 
-    @DeleteMapping("/manage/api/comment/{id}")
+    @DeleteMapping("/manage/comments/{commentId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     @Operation(summary = "Admin or Staff member delete comment with provided ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBugComment(@PathVariable Long id) {
+    public void deleteBugComment(@PathVariable Long commentId) {
 
-        service.deleteBugComment(id);
+        service.deleteBugComment(commentId);
     }
 
-    @PatchMapping("/manage/api/comment/{id}")
+    @PatchMapping("/manage/comments/{commentId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     @Operation(summary = "Admin or Staff member edit the content of comment with provided ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateBugComment(@PathVariable Long id, @NotBlank @RequestParam String content) {
-        service.updateBugComment(id, content);
+    public void updateBugComment(@PathVariable Long commentId, @NotBlank @RequestParam String content) {
+        service.updateBugComment(commentId, content);
     }
 
 

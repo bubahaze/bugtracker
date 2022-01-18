@@ -18,7 +18,7 @@ import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @RestController
-@RequestMapping("/manage/api/users")
+@RequestMapping("/manage/users")
 @AllArgsConstructor
 @Validated
 @Tag(name = "User Management", description = "Managing users by Admin & Staff members")
@@ -42,8 +42,16 @@ public class UserManagementController {
         return new ResponseEntity<>(allUsers, HttpStatus.OK);
     }
 
+    @GetMapping("/role")
+    @Operation(summary = "Displays list of users according to provided role")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<List<ApplicationUserResponse>> showByRole(@Parameter (description = "admin, staff or user") @RequestParam String role) {
+        List<ApplicationUserResponse> usersByRole = userService.findByRole(role);
+        return new ResponseEntity<>(usersByRole, HttpStatus.OK);
+    }
 
-    @PatchMapping("/set-role")
+
+    @PatchMapping("/role")
     @Operation(summary = "Admin sets role of user")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> setRoleOfApplicationUser(@RequestParam String username,

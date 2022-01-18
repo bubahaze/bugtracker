@@ -32,7 +32,7 @@ public class RegistrationService {
 
 
         String link = "http://localhost:9090/api/registration/confirm?token=" + token;
-        emailSender.send(
+        emailSender.sendConfirmationEmail(
                 request.getEmail(),
                 buildEmail(request.getFirstName(), link));
 

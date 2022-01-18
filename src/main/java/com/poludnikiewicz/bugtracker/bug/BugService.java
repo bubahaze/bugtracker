@@ -6,6 +6,8 @@ import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
+import com.poludnikiewicz.bugtracker.email.EmailService;
+import com.poludnikiewicz.bugtracker.exception.ApplicationUserNotFoundException;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -13,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,8 +23,11 @@ import java.util.stream.Collectors;
 public class BugService {
 
     private final BugRepository bugRepository;
+    private final ApplicationUserRepository userRepository;
 
-    public void addBug(BugRequest request, String reporterUsername) {
+    public Long addBug(BugRequest request, String reporterUsername) {
+        ApplicationUser reporter = userRepository.findByUsername(reporterUsername)
+                .orElseThrow(() -> new ApplicationUserNotFoundException("No user with username " + reporterUsername + " found."));
 
         Bug bug = Bug.builder()
                 .summary(request.getSummary())
@@ -31,11 +35,12 @@ public class BugService {
                 .description(request.getDescription())
                 .status(BugStatus.REPORTED)
                 .opSystemWhereBugOccurred(request.getOpSystemWhereBugOccurred())
-                .usernameOfReporter(reporterUsername)
                 .priority(BugPriority.UNSET)
+                .reporterOfBug(reporter)
                 .build();
 
         bugRepository.save(bug);
+        return bug.getId();
     }
 
     public void updateBugByBugRequest(BugRequest bug, long id) {
@@ -82,7 +87,6 @@ public class BugService {
     public Bug saveBug(Bug bug) {
         return bugRepository.save(bug);
     }
-
 
     public List<BugResponse> findAllBugs() {
         return (bugRepository
@@ -135,7 +139,7 @@ public class BugService {
                 .lastChangeAt(bug.getLastChangeAt())
                 .status(bug.getStatus())
                 .opSystemWhereBugOccurred(bug.getOpSystemWhereBugOccurred())
-                .usernameOfReporter(bug.getUsernameOfReporter())
+                .usernameOfReporter(bug.getReporterOfBug().getUsername())
                 .priority(bug.getPriority())
                 .numberOfComments(bug.getBugComments().size() == 0 ? null : bug.getBugComments().size())
                 .build();
@@ -159,5 +163,6 @@ public class BugService {
         commentResponse.setContent(comment.getContent());
         return commentResponse;
     }
+
 
 }

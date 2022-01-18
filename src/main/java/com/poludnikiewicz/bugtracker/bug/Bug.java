@@ -38,7 +38,8 @@ public class Bug {
     @ManyToOne(fetch = FetchType.LAZY)
     private ApplicationUser assignedStaffMember;
     private String opSystemWhereBugOccurred;
-    private String usernameOfReporter;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private ApplicationUser reporterOfBug;
     @Enumerated(EnumType.STRING)
     private BugPriority priority;
     @OneToMany(mappedBy = "bug", cascade = CascadeType.ALL, orphanRemoval = true)

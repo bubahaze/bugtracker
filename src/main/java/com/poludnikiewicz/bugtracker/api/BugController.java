@@ -12,7 +12,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +21,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/bug")
+@RequestMapping("/bugs")
 @Validated
 @Tag(name = "Bugtracker's users API", description = "for all registered users")
 public class BugController {
@@ -37,15 +36,15 @@ public class BugController {
         return new ResponseEntity<>(allBugs, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{bugId}")
     @JsonView(Views.SingleBug.class)
     @Operation(summary = "Displays bug with provided ID")
-    public ResponseEntity<BugResponse> showById(@PathVariable Long id) {
-        BugResponse bugResponse = service.findBugResponseById(id);
+    public ResponseEntity<BugResponse> showById(@PathVariable Long bugId) {
+        BugResponse bugResponse = service.findBugResponseById(bugId);
         return new ResponseEntity<>(bugResponse, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/search-by-project", params = "project")
+    @GetMapping(value = "/search/project", params = "project")
     @JsonView(Views.General.class)
     @Operation(summary = "Displays bugs relevant to provided project parameter", description = "searching in project parameter")
     public ResponseEntity<List<BugResponse>> searchByProject(@RequestParam String project) {
@@ -54,7 +53,7 @@ public class BugController {
 
     }
 
-    @GetMapping(value = "/search-by-keyword", params = "keyword")
+    @GetMapping(value = "/search/keyword", params = "keyword")
     @JsonView(Views.General.class)
     @Operation(summary = "Displays bugs relevant to provided keyword", description = "searching in every bug parameter")
     public ResponseEntity<List<BugResponse>> searchByKeyword(@RequestParam @NotBlank String keyword) {
@@ -72,14 +71,13 @@ public class BugController {
     }
 
 
-    @PostMapping("/new")
+    @PostMapping
     @Operation(summary = "Reports new bug")
     public ResponseEntity<String> postBug(@Valid @RequestBody BugRequest bug, Authentication authentication) {
-        UserDetails userDetailsOfReporter = (UserDetails) authentication.getPrincipal();
-        String reporterUsername = userDetailsOfReporter.getUsername();
-        service.addBug(bug, reporterUsername);
+        String reporterUsername = authentication.getName();
+        Long id = service.addBug(bug, reporterUsername);
 
-        return new ResponseEntity<>("Bug successfully reported.",
+        return new ResponseEntity<>("Bug successfully reported. ID of bug: " + id,
                 HttpStatus.CREATED);
     }
 

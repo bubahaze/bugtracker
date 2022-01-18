@@ -1,11 +1,13 @@
 package com.poludnikiewicz.bugtracker.auth;
 
+import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -25,6 +27,5 @@ public interface ApplicationUserRepository extends JpaRepository<ApplicationUser
     int enableApplicationUser(String email);
 
 
-
-
+    List<ApplicationUser> findByApplicationUserRole(ApplicationUserRole role);
 }
