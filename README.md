@@ -8,5 +8,6 @@ Web app to report and track bugs. <br>
 - connection with **PostgreSQL** database 🐘
 - SpringDoc + OpenAPI 3.0 (**Swagger**)
 - sending confirmation & notification **emails**
+- exception handling (AOP)
 - some MVC
 - and many more :boom:
