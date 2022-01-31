@@ -27,7 +27,7 @@ class BugServiceTest {
     void addBug_1() {
         Bug bug = new Bug();
         //service.addBug(bug); rewrite method and/or test
-        assertNotNull(bug.getUniqueCode());
+        //assertNotNull(bug.getUniqueCode());
         fail();
     }
 
@@ -88,7 +88,8 @@ class BugServiceTest {
     void findByProject() {
         String project = "project";
         service.findByProject(project);
-        verify(repository).findByProjectIgnoreCaseOrderByCreationDateDesc(project);
+       // verify(repository).findByProjectIgnoreCaseOrderByCreationDateDesc(project);
+        fail();
 
     }
 }
