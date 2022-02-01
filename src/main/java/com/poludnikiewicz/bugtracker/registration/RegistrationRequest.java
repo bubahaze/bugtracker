@@ -21,7 +21,6 @@ public class RegistrationRequest {
     @NotBlank(message = "Last name must not be blank")
     private String lastName;
     @Email(message = "Look like this is not a valid email")
-    @NotBlank(message = "Email must not be blank")
     private String email;
     @NotEmpty(message = "Password must not be empty")
     @Size(min = 8, message = "Password must contain at least 8 characters")
