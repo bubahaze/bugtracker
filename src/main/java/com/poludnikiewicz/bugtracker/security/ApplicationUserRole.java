@@ -7,6 +7,9 @@ public enum ApplicationUserRole {
 
 
     public static ApplicationUserRole sanitizeUserRole(String role) {
+        if (role == null) {
+            throw new IllegalArgumentException("Provided role cannot be null.");
+        }
         role = role.toUpperCase();
         switch (role) {
             case "ADMIN": return ApplicationUserRole.ADMIN;
