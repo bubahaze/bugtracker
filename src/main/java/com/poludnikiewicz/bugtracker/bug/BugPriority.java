@@ -1,7 +1,7 @@
 package com.poludnikiewicz.bugtracker.bug;
 
 /**
- * P1_CRITICAL priority is of highest importance, discussed feature is crucial for maintenance of
+ * P1_CRITICAL priority is of the highest importance, discussed feature is crucial for maintenance of
  * whole application, blocks development/testing or causes data loss, solution of such issue should come first, ASAP;
  * P2_IMPORTANT priority means the bug cause major damage for application flow and should be solved possibly fast;
  * P3_NORMAL priority - the bug blocks non-critical functionality and a workaround exists.
