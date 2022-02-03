@@ -33,8 +33,8 @@ public class EmailService implements EmailSender {
             helper.setFrom("igor.poludnikiewicz@gmail.com");
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            LOGGER.error("failed to send email", e);
-            throw new IllegalStateException("failed to send email");
+            LOGGER.error("failed to send confirmation email", e);
+            throw new IllegalStateException("failed to send confirmation email");
         }
     }
 
@@ -48,8 +48,8 @@ public class EmailService implements EmailSender {
             message.setText(content);
             mailSender.send(message);
         } catch (Exception e) {
-            System.out.println("exception in sendNotificationEmail of EmailService");
-            e.printStackTrace();
+            LOGGER.error("failed to send notification email", e);
+            throw new IllegalStateException("failed to send notification email");
         }
     }
 }
