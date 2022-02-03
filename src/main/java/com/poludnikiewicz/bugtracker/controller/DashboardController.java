@@ -11,21 +11,21 @@ public class DashboardController {
     @GetMapping("/admin")
     public ModelAndView admin() {
         ModelAndView model = new ModelAndView();
-        model.setViewName("admin");
+        model.setViewName("admin-dashboard");
         return model;
     }
 
     @GetMapping("/user")
     public ModelAndView user() {
         ModelAndView model = new ModelAndView();
-        model.setViewName("user");
+        model.setViewName("user-dashboard");
         return model;
     }
 
     @GetMapping("/staff")
     public ModelAndView staff() {
         ModelAndView model = new ModelAndView();
-        model.setViewName("staff");
+        model.setViewName("staff-dashboard");
         return model;
     }
 }
