@@ -1,6 +1,6 @@
 spring:
     mail:
-        password: springboot
+        password: root
         username: admin
         host: localhost
         port: 3025 # default protocol port + 3000 as offset-->
