@@ -60,7 +60,7 @@ class EmailServiceTest {
         emailSender.sendNotificationEmail(RECIPIENT, CONTENT);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
 
-        assertThat(receivedMessages.length).isEqualTo(1);//first message comes from sendConfirmationEmail_should_send_confirmation_email()
+        assertThat(receivedMessages.length).isEqualTo(1);
 
         await().atMost(2, SECONDS).untilAsserted(() -> {
             MimeMessage receivedMessage = receivedMessages[0];
