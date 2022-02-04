@@ -27,7 +27,7 @@ class EmailServiceTest {
     @RegisterExtension
     static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
             .withConfiguration(GreenMailConfiguration.aConfig().withUser("admin", "root"))
-            .withPerMethodLifecycle(false);
+            .withPerMethodLifecycle(true);
 
     @Autowired
     EmailSender emailSender;
@@ -39,7 +39,6 @@ class EmailServiceTest {
     void sendConfirmationEmail_should_send_confirmation_email() throws MessagingException, IOException {
 
         String subject = "Confirm your email";
-        greenMail.start();
 
         emailSender.sendConfirmationEmail(RECIPIENT, CONTENT);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
@@ -60,9 +59,11 @@ class EmailServiceTest {
         String subject = "Notification about recent changes to issue reported by you";
         emailSender.sendNotificationEmail(RECIPIENT, CONTENT);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
+
+        assertThat(receivedMessages.length).isEqualTo(1);//first message comes from sendConfirmationEmail_should_send_confirmation_email()
+
         await().atMost(2, SECONDS).untilAsserted(() -> {
-            assertThat(receivedMessages.length).isEqualTo(2); //first message comes from sendConfirmationEmail_should_send_confirmation_email()
-            MimeMessage receivedMessage = receivedMessages[1];
+            MimeMessage receivedMessage = receivedMessages[0];
             assertThat(receivedMessage.getAllRecipients()[0].toString()).isEqualTo(RECIPIENT);
             assertThat(receivedMessage.getFrom()[0].toString()).isEqualTo(SENDER);
             assertThat(receivedMessage.getSubject()).isEqualTo(subject);

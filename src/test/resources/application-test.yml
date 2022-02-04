@@ -3,6 +3,6 @@ spring:
         password: root
         username: admin
         host: localhost
-        port: 3025 # default protocol port + 3000 as offset-->
+        port: 3025
         protocol: smtp
-        test-connection: true
+        test-connection: false
