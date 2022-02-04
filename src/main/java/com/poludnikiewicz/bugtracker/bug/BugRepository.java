@@ -18,7 +18,7 @@ public interface BugRepository extends JpaRepository<Bug, Long> {
     List<Bug> findByKeyword(String keyword);
 
     @Query("select b from Bug b where b.assignedStaffMember.username = ?1")
-    List<Bug> findAllBugsAssignedToPrincipal(String username);
+    List<Bug> findAllBugsAssignedToApplicationUser(String username);
 
     List<Bug> findByPriority(BugPriority priority);
 
