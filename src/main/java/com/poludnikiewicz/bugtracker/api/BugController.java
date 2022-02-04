@@ -47,7 +47,7 @@ public class BugController {
     @GetMapping(value = "/search/project", params = "project")
     @JsonView(Views.General.class)
     @Operation(summary = "Displays bugs relevant to provided project parameter", description = "searching in project parameter")
-    public ResponseEntity<List<BugResponse>> searchByProject(@RequestParam String project) {
+    public ResponseEntity<List<BugResponse>> searchByProject(@RequestParam @NotBlank String project) {
         List<BugResponse> bugsByProject = service.findByProject(project);
         return new ResponseEntity<>(bugsByProject, HttpStatus.OK);
 
