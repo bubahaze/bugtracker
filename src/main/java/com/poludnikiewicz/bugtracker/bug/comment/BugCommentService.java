@@ -57,7 +57,7 @@ public class BugCommentService {
         ApplicationUser reporterOfBug = bug.getReporterOfBug();
         if (reporterOfBug != null && !reporterOfBug.getUsername().equals(author)) {
             String emailOfReporter = reporterOfBug.getEmail();
-            String contentForReporter = String.format("Someone posted a comment to the bug with ID %d assigned to you. The content of a comment: %s", bugId, content);
+            String contentForReporter = String.format("Someone posted a comment to the bug with ID %d reported by you. The content of a comment: %s", bugId, content);
             emailService.sendNotificationEmail(emailOfReporter, contentForReporter);
         }
     }
