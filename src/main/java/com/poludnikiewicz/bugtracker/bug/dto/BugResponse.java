@@ -26,9 +26,9 @@ public class BugResponse {
     private String summary;
     private String project;
     private String description;
-    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
     private LocalDateTime creationDate;
-    @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy/MM/dd HH:mm:ss")
     private LocalDateTime lastChangeAt;
     private BugStatus status;
     private String usernameOfAssignee;

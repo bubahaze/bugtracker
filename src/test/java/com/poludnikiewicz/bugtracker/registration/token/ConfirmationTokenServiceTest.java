@@ -1,6 +1,8 @@
 package com.poludnikiewicz.bugtracker.registration.token;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
 class ConfirmationTokenServiceTest {
 
@@ -33,24 +36,21 @@ class ConfirmationTokenServiceTest {
     private ConfirmationTokenRepository repository;
 
     @Test
-    @DisplayName("Should invoke save method of ConfirmationTokenRepository")
-    void saveConfirmationToken() {
+    void saveConfirmationToken_should_invoke_save_of_ConfirmationTokenRepository() {
         ConfirmationToken token = mock(ConfirmationToken.class);
         service.saveConfirmationToken(token);
         verify(repository).save(token);
     }
 
     @Test
-    @DisplayName("Should return findByToken(String token) of ConfirmationTokenRepository")
-    void getToken() {
+    void getToken_should_return_findByToken_of_ConfirmationTokenRepository() {
         String token = UUID.randomUUID().toString();
         service.getToken(token);
         verify(repository).findByToken(token);
     }
 
     @Test
-    @DisplayName("Should return updateConfirmedAt(String token) of ConfirmationTokenRepository")
-    void setConfirmedAt() {
+    void setConfirmedAt_should_return_updateConfirmedAt_of_ConfirmationTokenRepository() {
         String token = UUID.randomUUID().toString();
         service.setConfirmedAt(token);
         verify(repository).updateConfirmedAt(eq(token), any(LocalDateTime.class));

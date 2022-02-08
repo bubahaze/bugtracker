@@ -15,7 +15,7 @@ public class TemplateController {
     @GetMapping("login")
     public ModelAndView displayLoginPage(HttpServletResponse response) {
         response.addHeader("Content-Type", "text/html");
-        return new ModelAndView("login");
+        return new ModelAndView("login-page");
     }
 
 

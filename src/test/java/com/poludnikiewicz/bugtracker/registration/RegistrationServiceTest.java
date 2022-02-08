@@ -5,10 +5,7 @@ import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.email.EmailSender;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationToken;
 import com.poludnikiewicz.bugtracker.registration.token.ConfirmationTokenService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @ExtendWith(MockitoExtension.class)
 class RegistrationServiceTest {
 
@@ -39,8 +37,7 @@ class RegistrationServiceTest {
 
 
     @Test
-    @DisplayName("Should invoke signUpUser method of ApplicationUserService class")
-    void register_1() {
+    void register_should_invoke_signUpUser_of_ApplicationUserService_class_upon_providing_RegistrationRequest() {
         registrationService.register(registrationRequest);
         verify(applicationUserService).signUpUser(new ApplicationUser(
                 registrationRequest.getUsername(),
@@ -51,16 +48,20 @@ class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should return string upon register")
-    void register_2() {
+    void register_should_invoke_sendConfirmationEmail_of_EmailSender() {
+        registrationService.register(registrationRequest);
+        verify(emailSender).sendConfirmationEmail(eq(registrationRequest.getEmail()), anyString());
+    }
+
+    @Test
+    void register_should_return_string_if_success() {
         String expected = "User successfully registered. A confirmation e-mail has been sent to you";
         String actual = registrationService.register(registrationRequest);
         assertEquals(expected, actual);
     }
 
     @Test
-    @DisplayName("Should throw exception when providing wrong token")
-    void confirmToken_1() {
+    void confirmToken_should_throw_exception_when_providing_wrong_token() {
         String token = anyString();
         assertThatThrownBy(() -> registrationService.confirmToken(token)).isInstanceOf(IllegalStateException.class)
                .hasMessageContaining("token not found");
@@ -87,8 +88,7 @@ class RegistrationServiceTest {
 
 
         @Test
-        @DisplayName("Should throw exception when email is already confirmed")
-        void confirmToken_2() {
+        void confirmToken_should_throw_exception_when_email_is_already_confirmed() {
             confirmationToken.setConfirmedAt(LocalDateTime.now());
 
             assertThatThrownBy(() -> registrationService.confirmToken(token)).isInstanceOf(IllegalStateException.class)
@@ -99,8 +99,7 @@ class RegistrationServiceTest {
         }
 
         @Test
-        @DisplayName("Should throw exception when token has expired")
-        void confirmToken_3() {
+        void confirmToken_should_throw_exception_when_token_has_expired() {
             confirmationToken.setExpiresAt(LocalDateTime.now().minusMinutes(2));
             assertThatThrownBy(() -> registrationService.confirmToken(token)).isInstanceOf(IllegalStateException.class)
                     .hasMessage("token expired");
@@ -110,23 +109,20 @@ class RegistrationServiceTest {
         }
 
         @Test
-        @DisplayName("Should invoke setConfirmedAt method of ConfirmationTokenService class")
-        void confirmToken_4() {
+        void confirmToken_should_invoke_setConfirmedAt_of_ConfirmationTokenService_class() {
             registrationService.confirmToken(token);
             verify(confirmationTokenService).setConfirmedAt(token);
         }
 
         @Test
-        @DisplayName("Should invoke enableApplicationUser method of ApplicationUserService class")
-        void confirmToken_5() {
+        void confirmToken_should_invoke_enableApplicationUser_of_ApplicationUserService_class() {
             registrationService.confirmToken(token);
             verify(applicationUserService).enableApplicationUser(confirmationToken.getApplicationUser().getEmail());
 
         }
 
         @Test
-        @DisplayName("Should return string 'email confirmed'")
-        void confirmToken_6() {
+        void confirmToken_should_return_string() {
             String expected = "email confirmed";
             String actual = registrationService.confirmToken(token);
             assertEquals(expected, actual);

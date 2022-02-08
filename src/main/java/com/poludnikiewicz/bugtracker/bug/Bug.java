@@ -35,10 +35,10 @@ public class Bug {
     private LocalDateTime lastChangeAt;
     @Enumerated(EnumType.STRING)
     private BugStatus status;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ApplicationUser assignedStaffMember;
     private String opSystemWhereBugOccurred;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private ApplicationUser reporterOfBug;
     @Enumerated(EnumType.STRING)
     private BugPriority priority;

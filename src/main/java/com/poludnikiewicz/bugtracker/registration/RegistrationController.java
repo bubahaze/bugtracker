@@ -25,7 +25,7 @@ public class RegistrationController {
         return registrationService.register(request);
     }
 
-    @GetMapping(path="confirm")
+    @GetMapping(path="/confirm")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Triggered by authentication link that confirms email address")
     public String confirm(@RequestParam("token") String token) {

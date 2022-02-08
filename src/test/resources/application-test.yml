@@ -1,0 +1,8 @@
+spring:
+    mail:
+        password: root
+        username: admin
+        host: localhost
+        port: 3025
+        protocol: smtp
+        test-connection: false

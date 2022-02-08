@@ -6,7 +6,6 @@ import com.poludnikiewicz.bugtracker.bug.comment.BugComment;
 import com.poludnikiewicz.bugtracker.bug.comment.dto.BugCommentResponse;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
-import com.poludnikiewicz.bugtracker.email.EmailService;
 import com.poludnikiewicz.bugtracker.exception.ApplicationUserNotFoundException;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
 import lombok.AllArgsConstructor;
@@ -96,8 +95,8 @@ public class BugService {
                 .collect(Collectors.toList());
     }
 
-    public List<BugResponse> findAllBugsAssignedToPrincipal(String username) {
-        return bugRepository.findAllBugsAssignedToPrincipal(username).stream()
+    public List<BugResponse> findAllBugsAssignedToApplicationUser(String username) {
+        return bugRepository.findAllBugsAssignedToApplicationUser(username).stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
     }

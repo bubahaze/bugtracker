@@ -58,7 +58,17 @@ public class BugManagementController {
     @Operation(summary = "Displays list of bugs by assigned to currently logged in Staff member")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showBugsAssignedToPrincipal(Authentication authentication) {
-        List<BugResponse> bugs = bugService.findAllBugsAssignedToPrincipal(authentication.getName());
+        List<BugResponse> bugs = bugService.findAllBugsAssignedToApplicationUser(authentication.getName());
+
+        return new ResponseEntity<>(bugs, HttpStatus.OK);
+    }
+
+    @GetMapping("/assigned-to")
+    @JsonView(Views.General.class)
+    @Operation(summary = "Displays list of bugs by assigned to the User(Staff member) passed as param")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
+    public ResponseEntity<List<BugResponse>> showBugsAssignedToUser(@RequestParam String username) {
+        List<BugResponse> bugs = bugService.findAllBugsAssignedToApplicationUser(username);
 
         return new ResponseEntity<>(bugs, HttpStatus.OK);
     }
