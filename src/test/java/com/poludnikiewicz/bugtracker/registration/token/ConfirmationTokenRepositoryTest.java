@@ -16,7 +16,6 @@ import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
-@ExtendWith(MockitoExtension.class)
 class ConfirmationTokenRepositoryTest {
 
     @Autowired
@@ -27,7 +26,7 @@ class ConfirmationTokenRepositoryTest {
     EntityManager entityManager;
 
     @Test
-    void updateConfirmedAt() {
+    void updateConfirmedAt_should_update_confirmedAt_of_confirmationToken() {
         ApplicationUser user = new ApplicationUser("johnny", "john", "doe", "johndoe@gmail.com", "password");
         userRepository.save(user);
         ConfirmationToken token = new ConfirmationToken("123456789", LocalDateTime.now(), LocalDateTime.now().plusMinutes(20), user);
