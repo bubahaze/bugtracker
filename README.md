@@ -1,7 +1,7 @@
 # bugtracker :bug:
 Web app to report and track bugs. <br>
-👷‍♂️ Currently working on: **HATEOAS** 🧪 <br>
-🏭 Next issue: unit & integration testing <br>
+👷‍♂️ Currently working on: **unit & integration testing** 🧪 <br>
+# 🏭 Next issue: unit & integration testing <br>
 🗃️ The app contains so far:
 - access through **REST APIs**, API for staff members, API for all users 🎛️
 - registration & login & security with **Spring Security** 🥬
