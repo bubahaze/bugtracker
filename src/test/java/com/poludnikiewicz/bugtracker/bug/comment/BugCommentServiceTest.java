@@ -35,12 +35,13 @@ class BugCommentServiceTest {
     BugCommentService commentService;
     final String authorOfComment = "Joe Krasinski";
     final String contentOfComment = "this is the content of the comment";
+    final Long bugId = 44L;
+    final Long commentId = 34L;
 
     @Test
     void addComment_should_invoke_findById_of_BugRepository_if_bug_exists() {
         BugCommentRequest request = mock(BugCommentRequest.class);
         Bug bug = mock(Bug.class);
-        Long bugId = 1L;
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
         commentService.addComment(bugId, request, authorOfComment);
         verify(bugRepository).findById(bugId);
@@ -49,7 +50,6 @@ class BugCommentServiceTest {
     @Test
     void addComment_should_throw_BugNotFoundException_if_bug_not_exist() {
         BugCommentRequest request = mock(BugCommentRequest.class);
-        Long bugId = 1L;
 
         Exception exception = assertThrows(BugNotFoundException.class, () -> commentService.addComment(bugId, request, authorOfComment));
         String expectedMessage = "Bug with id " + bugId + " not found.";
@@ -63,7 +63,6 @@ class BugCommentServiceTest {
     void addComment_should_build_BugComment_from_BugCommentRequest_and_save_if_Bug_exist() {
         BugCommentRequest request = new BugCommentRequest(contentOfComment);
         Bug bug = mock(Bug.class);
-        Long bugId = 45L;
         ArgumentCaptor<BugComment> captor = ArgumentCaptor.forClass(BugComment.class);
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
@@ -83,7 +82,6 @@ class BugCommentServiceTest {
 
     @Test
     void deleteBugComment_should_invoke_deleteById_of_BugCommentRepository() {
-        Long commentId = 3L;
         commentService.deleteBugComment(commentId);
         verify(commentRepository).deleteById(commentId);
     }
@@ -91,7 +89,6 @@ class BugCommentServiceTest {
     @Test
     void updateBugComment_should_invoke_findById_of_BugCommentRepository_if_BugComment_exists() {
         BugComment comment = mock(BugComment.class);
-        Long commentId = 54L;
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
         commentService.updateBugComment(commentId, contentOfComment);
         verify(commentRepository).findById(commentId);
@@ -99,7 +96,6 @@ class BugCommentServiceTest {
 
     @Test
     void updateBugComment_should_throw_CommentNotFoundException_if_BugComment_not_exist() {
-        Long commentId = 54L;
         Exception exception = assertThrows(CommentNotFoundException.class, () -> commentService.updateBugComment(commentId, contentOfComment));
         String expectedMessage = "Comment with id " + commentId + " not found.";
         String actualMessage = exception.getMessage();
@@ -112,7 +108,6 @@ class BugCommentServiceTest {
     void updateBugComment_should_save_BugComment_with_updated_content_if_BugComment_exists() {
         Bug bug = mock(Bug.class);
         BugComment comment = new BugComment(5L, contentOfComment, bug, authorOfComment);
-        Long commentId = 54L;
         String updatedContent = "updated content of the comment";
         ArgumentCaptor<BugComment> captor = ArgumentCaptor.forClass(BugComment.class);
 
@@ -128,7 +123,6 @@ class BugCommentServiceTest {
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_invoke_findById_of_BugRepository_if_bug_exists() {
         Bug bug = mock(Bug.class);
-        long bugId = 23L;
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
         commentService.sendNotificationEmailToBugReporterAndAssignee(authorOfComment, bugId, contentOfComment);
         verify(bugRepository).findById(bugId);
@@ -136,7 +130,6 @@ class BugCommentServiceTest {
 
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_throw_BugNotFoundException_if_bug_not_exist() {
-        long bugId = 67L;
         Exception exception = assertThrows(BugNotFoundException.class,
                 () -> commentService.sendNotificationEmailToBugReporterAndAssignee(authorOfComment, bugId,
                         contentOfComment));
@@ -151,7 +144,6 @@ class BugCommentServiceTest {
     void sendNotificationEmailToBugReporterAndAssignee_should_send_email_to_assignee_of_bug_if_bug_exist() {
         ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe",
                 "johndoe@gmail.com", "password");
-        long bugId = 7L;
         Bug bug = Bug.builder().id(bugId).assignedStaffMember(assignee).build();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
@@ -172,7 +164,6 @@ class BugCommentServiceTest {
     void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_assignee_if_is_the_comment_author() {
         ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe",
                 "johndoe@gmail.com", "password");
-        long bugId = 7L;
         Bug bug = Bug.builder().id(bugId).assignedStaffMember(assignee).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
@@ -182,7 +173,6 @@ class BugCommentServiceTest {
 
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_assignee_if_is_null() {
-        long bugId = 7L;
         Bug bug = Bug.builder().id(bugId).assignedStaffMember(null).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
@@ -194,7 +184,6 @@ class BugCommentServiceTest {
     void sendNotificationEmailToBugReporterAndAssignee_should_send_email_to_reporter_of_bug_if_bug_exist() {
         ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
                 "johndoe@gmail.com", "password");
-        long bugId = 7L;
         Bug bug = Bug.builder().id(bugId).reporterOfBug(reporter).build();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
@@ -215,7 +204,6 @@ class BugCommentServiceTest {
     void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_reporter_if_is_the_comment_author() {
         ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
                 "johndoe@gmail.com", "password");
-        long bugId = 7L;
         Bug bug = Bug.builder().id(bugId).reporterOfBug(reporter).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
