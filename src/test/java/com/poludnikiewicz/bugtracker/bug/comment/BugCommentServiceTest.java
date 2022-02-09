@@ -33,8 +33,8 @@ class BugCommentServiceTest {
     EmailService emailService;
     @InjectMocks
     BugCommentService commentService;
-    final String AUTHOR_OF_COMMENT = "JoeKrasinski";
-    final String CONTENT_OF_COMMENT = "this is the content of the comment";
+    final String authorOfComment = "Joe Krasinski";
+    final String contentOfComment = "this is the content of the comment";
 
     @Test
     void addComment_should_invoke_findById_of_BugRepository_if_bug_exists() {
@@ -42,7 +42,7 @@ class BugCommentServiceTest {
         Bug bug = mock(Bug.class);
         Long bugId = 1L;
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.addComment(bugId, request, AUTHOR_OF_COMMENT);
+        commentService.addComment(bugId, request, authorOfComment);
         verify(bugRepository).findById(bugId);
     }
 
@@ -51,7 +51,7 @@ class BugCommentServiceTest {
         BugCommentRequest request = mock(BugCommentRequest.class);
         Long bugId = 1L;
 
-        Exception exception = assertThrows(BugNotFoundException.class, () -> commentService.addComment(bugId, request, AUTHOR_OF_COMMENT));
+        Exception exception = assertThrows(BugNotFoundException.class, () -> commentService.addComment(bugId, request, authorOfComment));
         String expectedMessage = "Bug with id " + bugId + " not found.";
         String actualMessage = exception.getMessage();
 
@@ -61,13 +61,13 @@ class BugCommentServiceTest {
 
     @Test
     void addComment_should_build_BugComment_from_BugCommentRequest_and_save_if_Bug_exist() {
-        BugCommentRequest request = new BugCommentRequest(CONTENT_OF_COMMENT);
+        BugCommentRequest request = new BugCommentRequest(contentOfComment);
         Bug bug = mock(Bug.class);
         Long bugId = 45L;
         ArgumentCaptor<BugComment> captor = ArgumentCaptor.forClass(BugComment.class);
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.addComment(bugId, request, AUTHOR_OF_COMMENT);
+        commentService.addComment(bugId, request, authorOfComment);
 
         verify(commentRepository).save(any(BugComment.class));
         verify(commentRepository).save(captor.capture());
@@ -75,7 +75,7 @@ class BugCommentServiceTest {
         String capturedContent = captor.getValue().getContent();
         Bug capturedBug = captor.getValue().getBug();
 
-        assertEquals(AUTHOR_OF_COMMENT, capturedAuthor);
+        assertEquals(authorOfComment, capturedAuthor);
         assertEquals(request.getContent(), capturedContent);
         assertEquals(bug, capturedBug);
 
@@ -93,14 +93,14 @@ class BugCommentServiceTest {
         BugComment comment = mock(BugComment.class);
         Long commentId = 54L;
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(comment));
-        commentService.updateBugComment(commentId, CONTENT_OF_COMMENT);
+        commentService.updateBugComment(commentId, contentOfComment);
         verify(commentRepository).findById(commentId);
     }
 
     @Test
     void updateBugComment_should_throw_CommentNotFoundException_if_BugComment_not_exist() {
         Long commentId = 54L;
-        Exception exception = assertThrows(CommentNotFoundException.class, () -> commentService.updateBugComment(commentId, CONTENT_OF_COMMENT));
+        Exception exception = assertThrows(CommentNotFoundException.class, () -> commentService.updateBugComment(commentId, contentOfComment));
         String expectedMessage = "Comment with id " + commentId + " not found.";
         String actualMessage = exception.getMessage();
 
@@ -111,7 +111,7 @@ class BugCommentServiceTest {
     @Test
     void updateBugComment_should_save_BugComment_with_updated_content_if_BugComment_exists() {
         Bug bug = mock(Bug.class);
-        BugComment comment = new BugComment(5L, CONTENT_OF_COMMENT, bug, AUTHOR_OF_COMMENT);
+        BugComment comment = new BugComment(5L, contentOfComment, bug, authorOfComment);
         Long commentId = 54L;
         String updatedContent = "updated content of the comment";
         ArgumentCaptor<BugComment> captor = ArgumentCaptor.forClass(BugComment.class);
@@ -130,7 +130,7 @@ class BugCommentServiceTest {
         Bug bug = mock(Bug.class);
         long bugId = 23L;
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.sendNotificationEmailToBugReporterAndAssignee(AUTHOR_OF_COMMENT, bugId, CONTENT_OF_COMMENT);
+        commentService.sendNotificationEmailToBugReporterAndAssignee(authorOfComment, bugId, contentOfComment);
         verify(bugRepository).findById(bugId);
     }
 
@@ -138,8 +138,8 @@ class BugCommentServiceTest {
     void sendNotificationEmailToBugReporterAndAssignee_should_throw_BugNotFoundException_if_bug_not_exist() {
         long bugId = 67L;
         Exception exception = assertThrows(BugNotFoundException.class,
-                () -> commentService.sendNotificationEmailToBugReporterAndAssignee(AUTHOR_OF_COMMENT, bugId,
-                        CONTENT_OF_COMMENT));
+                () -> commentService.sendNotificationEmailToBugReporterAndAssignee(authorOfComment, bugId,
+                        contentOfComment));
         String expectedMessage = "Bug with id " + bugId + " not found.";
         String actualMessage = exception.getMessage();
 
@@ -156,13 +156,13 @@ class BugCommentServiceTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.sendNotificationEmailToBugReporterAndAssignee(AUTHOR_OF_COMMENT, bugId, CONTENT_OF_COMMENT);
+        commentService.sendNotificationEmailToBugReporterAndAssignee(authorOfComment, bugId, contentOfComment);
         verify(emailService).sendNotificationEmail(eq(assignee.getEmail()), anyString());
         verify(emailService).sendNotificationEmail(captor.capture(), captor.capture());
         String capturedEmailAddress = captor.getAllValues().get(0);
         String capturedContent = captor.getAllValues().get(1);
         String expectedEmailContent = String.format("Someone posted a comment to the bug with ID %d assigned to you." +
-                " The content of a comment: %s", bugId, CONTENT_OF_COMMENT);
+                " The content of a comment: %s", bugId, contentOfComment);
 
         assertEquals(assignee.getEmail(), capturedEmailAddress);
         assertEquals(expectedEmailContent, capturedContent);
@@ -176,7 +176,7 @@ class BugCommentServiceTest {
         Bug bug = Bug.builder().id(bugId).assignedStaffMember(assignee).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.sendNotificationEmailToBugReporterAndAssignee(assignee.getUsername(), bugId, CONTENT_OF_COMMENT);
+        commentService.sendNotificationEmailToBugReporterAndAssignee(assignee.getUsername(), bugId, contentOfComment);
         verify(emailService, never()).sendNotificationEmail(eq(assignee.getEmail()), anyString());
     }
 
@@ -186,7 +186,7 @@ class BugCommentServiceTest {
         Bug bug = Bug.builder().id(bugId).assignedStaffMember(null).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.sendNotificationEmailToBugReporterAndAssignee(AUTHOR_OF_COMMENT, bugId, CONTENT_OF_COMMENT);
+        commentService.sendNotificationEmailToBugReporterAndAssignee(authorOfComment, bugId, contentOfComment);
         verify(emailService, never()).sendNotificationEmail(anyString(), anyString());
     }
 
@@ -199,13 +199,13 @@ class BugCommentServiceTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.sendNotificationEmailToBugReporterAndAssignee(AUTHOR_OF_COMMENT, bugId, CONTENT_OF_COMMENT);
+        commentService.sendNotificationEmailToBugReporterAndAssignee(authorOfComment, bugId, contentOfComment);
         verify(emailService).sendNotificationEmail(eq(reporter.getEmail()), anyString());
         verify(emailService).sendNotificationEmail(captor.capture(), captor.capture());
         String capturedEmailAddress = captor.getAllValues().get(0);
         String capturedContent = captor.getAllValues().get(1);
         String expectedEmailContent = String.format("Someone posted a comment to the bug with ID %d reported by you." +
-                " The content of a comment: %s", bugId, CONTENT_OF_COMMENT);
+                " The content of a comment: %s", bugId, contentOfComment);
 
         assertEquals(reporter.getEmail(), capturedEmailAddress);
         assertEquals(expectedEmailContent, capturedContent);
@@ -219,7 +219,7 @@ class BugCommentServiceTest {
         Bug bug = Bug.builder().id(bugId).reporterOfBug(reporter).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
-        commentService.sendNotificationEmailToBugReporterAndAssignee(reporter.getUsername(), bugId, CONTENT_OF_COMMENT);
+        commentService.sendNotificationEmailToBugReporterAndAssignee(reporter.getUsername(), bugId, contentOfComment);
         verify(emailService, never()).sendNotificationEmail(eq(reporter.getEmail()), anyString());
     }
 }
