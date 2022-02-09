@@ -152,21 +152,82 @@ class BugCommentServiceTest {
 
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_send_email_to_assignee_of_bug_if_bug_exist() {
-        ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe", "johndoe@gmail.com", "password");
-        Bug bug = Bug.builder().assignedStaffMember(assignee).build();
+        ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe",
+                "johndoe@gmail.com", "password");
+        long bugId = 7L;
+        Bug bug = Bug.builder().id(bugId).assignedStaffMember(assignee).build();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-
         String content = "content-of-the-comment";
-        commentService.sendNotificationEmailToBugReporterAndAssignee("author-of-comment", bug.getId(), content);
-        verify(emailService).sendNotificationEmail(anyString(), anyString());
+
+        when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
+        commentService.sendNotificationEmailToBugReporterAndAssignee("author-of-comment", bugId, content);
+        verify(emailService).sendNotificationEmail(eq(assignee.getEmail()), anyString());
         verify(emailService).sendNotificationEmail(captor.capture(), captor.capture());
         String capturedEmailAddress = captor.getAllValues().get(0);
         String capturedContent = captor.getAllValues().get(1);
+        String expectedEmailContent = String.format("Someone posted a comment to the bug with ID %d assigned to you." +
+                " The content of a comment: %s", bugId, content);
 
         assertEquals(assignee.getEmail(), capturedEmailAddress);
-        assertEquals(content, capturedContent);
+        assertEquals(expectedEmailContent, capturedContent);
+    }
 
-        // Test failed, reason: NPE - no values inside captor I guess
+    @Test
+    void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_assignee_if_is_the_comment_author() {
+        ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe",
+                "johndoe@gmail.com", "password");
+        long bugId = 7L;
+        Bug bug = Bug.builder().id(bugId).assignedStaffMember(assignee).build();
+        String content = "content-of-the-comment";
 
+        when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
+        commentService.sendNotificationEmailToBugReporterAndAssignee(assignee.getUsername(), bugId, content);
+        verify(emailService, never()).sendNotificationEmail(eq(assignee.getEmail()), anyString());
+    }
+
+    @Test
+    void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_assignee_if_is_null() {
+        long bugId = 7L;
+        Bug bug = Bug.builder().id(bugId).assignedStaffMember(null).build();
+        String content = "content-of-the-comment";
+
+        when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
+        commentService.sendNotificationEmailToBugReporterAndAssignee("author-of-the-comment", bugId, content);
+        verify(emailService, never()).sendNotificationEmail(anyString(), anyString());
+    }
+
+    @Test
+    void sendNotificationEmailToBugReporterAndAssignee_should_send_email_to_reporter_of_bug_if_bug_exist() {
+        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
+                "johndoe@gmail.com", "password");
+        long bugId = 7L;
+        Bug bug = Bug.builder().id(bugId).reporterOfBug(reporter).build();
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        String content = "content-of-the-comment";
+
+        when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
+        commentService.sendNotificationEmailToBugReporterAndAssignee("author-of-comment", bugId, content);
+        verify(emailService).sendNotificationEmail(eq(reporter.getEmail()), anyString());
+        verify(emailService).sendNotificationEmail(captor.capture(), captor.capture());
+        String capturedEmailAddress = captor.getAllValues().get(0);
+        String capturedContent = captor.getAllValues().get(1);
+        String expectedEmailContent = String.format("Someone posted a comment to the bug with ID %d reported by you." +
+                " The content of a comment: %s", bugId, content);
+
+        assertEquals(reporter.getEmail(), capturedEmailAddress);
+        assertEquals(expectedEmailContent, capturedContent);
+    }
+
+    @Test
+    void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_reporter_if_is_the_comment_author() {
+        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
+                "johndoe@gmail.com", "password");
+        long bugId = 7L;
+        Bug bug = Bug.builder().id(bugId).reporterOfBug(reporter).build();
+        String content = "content-of-the-comment";
+
+        when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
+        commentService.sendNotificationEmailToBugReporterAndAssignee(reporter.getUsername(), bugId, content);
+        verify(emailService, never()).sendNotificationEmail(eq(reporter.getEmail()), anyString());
     }
 }
