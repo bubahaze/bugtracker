@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
 import java.util.Collections;
 import java.util.List;
@@ -203,12 +204,51 @@ class BugServiceTest {
         List<BugResponse> bugResponsesByProject = bugService.findByProject(project);
 
         assertEquals(bugs.size(), bugResponsesByProject.size());
-        //TODO: testing mapToBugCommentResponse private method here??
     }
 
     @Test
-    void findAllBugs() {
-        bugService.findAllBugs();
-        verify(bugRepository).findAll();
+    void saveBug_should_invoke_saveBug_of_BugRepository() {
+        Bug bug = mock(Bug.class);
+        bugService.saveBug(bug);
+        verify(bugRepository).save(bug);
+    }
+
+    @Test
+    void sortBugsAccordingToKey_should_return_List_of_BugResponses_in_ascending_order_sorted_by_key() {
+        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
+                "johndoe@gmail.com", "password");
+        Bug bug1 = Bug.builder().project("b project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
+        Bug bug2 = Bug.builder().project("a project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
+        Bug bug3 = Bug.builder().project("c project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
+        List<Bug> bugs = List.of(bug2, bug1, bug3);
+
+        String key = "project";
+        when(bugRepository.findAll(Sort.by(Sort.Direction.ASC, key))).thenReturn(bugs);
+        List<BugResponse> bugResponses = bugService.sortBugsAccordingToKey(key, "asc");
+
+        assertEquals(bugs.size(), bugResponses.size());
+        assertEquals(bugs.get(0).getProject(), bugResponses.get(0).getProject());
+        assertEquals(bugs.get(1).getProject(), bugResponses.get(1).getProject());
+        assertEquals(bugs.get(2).getProject(), bugResponses.get(2).getProject());
+    }
+
+
+    @Test
+    void sortBugsAccordingToKey_should_return_List_of_BugResponses_in_descending_order_sorted_by_key() {
+        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
+                "johndoe@gmail.com", "password");
+        Bug bug1 = Bug.builder().project("b project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
+        Bug bug2 = Bug.builder().project("a project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
+        Bug bug3 = Bug.builder().project("c project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
+        List<Bug> bugs = List.of(bug3, bug1, bug2);
+
+        String key = "project";
+        when(bugRepository.findAll(Sort.by(Sort.Direction.DESC, key))).thenReturn(bugs);
+        List<BugResponse> bugResponses = bugService.sortBugsAccordingToKey(key, "desc");
+
+        assertEquals(bugs.size(), bugResponses.size());
+        assertEquals(bugs.get(0).getProject(), bugResponses.get(0).getProject());
+        assertEquals(bugs.get(1).getProject(), bugResponses.get(1).getProject());
+        assertEquals(bugs.get(2).getProject(), bugResponses.get(2).getProject());
     }
 }
