@@ -21,15 +21,15 @@ import javax.validation.constraints.NotBlank;
 @Tag(name = "Bug Comment API", description = "Comments for particular bugs")
 public class BugCommentController {
 
-    private final BugCommentService service;
+    private final BugCommentService commentService;
 
     @PostMapping("{bugId}/comments")
     @Operation(summary = "Any user posts a comment to particular bug")
     public ResponseEntity<String> postBugComment(@PathVariable Long bugId, @Valid @RequestBody BugCommentRequest request, Authentication authentication) {
 
         String author = authentication.getName();
-        service.addComment(bugId, request, author);
-        service.sendNotificationEmailToBugReporterAndAssignee(author, bugId, request.getContent());
+        commentService.addComment(bugId, request, author);
+        commentService.sendNotificationEmailToBugReporterAndAssignee(author, bugId, request.getContent());
 
         return new ResponseEntity<>("Comment posted to Bug with id " + bugId, HttpStatus.CREATED);
 
@@ -41,7 +41,7 @@ public class BugCommentController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBugComment(@PathVariable Long commentId) {
 
-        service.deleteBugComment(commentId);
+        commentService.deleteBugComment(commentId);
     }
 
     @PatchMapping("/manage/comments/{commentId}")
@@ -49,7 +49,7 @@ public class BugCommentController {
     @Operation(summary = "Admin or Staff member edit the content of comment with provided ID")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateBugComment(@PathVariable Long commentId, @NotBlank @RequestParam String content) {
-        service.updateBugComment(commentId, content);
+        commentService.updateBugComment(commentId, content);
     }
 
 
