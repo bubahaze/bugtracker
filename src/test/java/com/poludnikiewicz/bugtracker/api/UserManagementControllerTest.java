@@ -1,9 +1,10 @@
 package com.poludnikiewicz.bugtracker.api;
 
+import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserResponse;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
+import com.poludnikiewicz.bugtracker.exception.ApplicationUserNotFoundException;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -14,7 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -22,13 +23,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-//@WebMvcTest(UserManagementController.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 class UserManagementControllerTest {
@@ -48,13 +48,26 @@ class UserManagementControllerTest {
         when(userService.findApplicationUserResponseByUsername(user1.getUsername())).thenReturn(user1);
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .get("/manage/users/{username}", "johnny")
+                        .get("/manage/users/{username}", user1.getUsername())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("johnny"))
                 .andExpect(jsonPath("$.email").value("johndoe@gmail.com"))
                 .andExpect(jsonPath("$.applicationUserRole").value("USER"))
                 .andExpect(jsonPath("$.enabled").value(true));
+    }
+
+    @Test
+    @WithMockUser(roles = {"STAFF", "ADMIN"})
+    void showByUsername_should_return_statusCode_BadRequest_if_user_not_exist() throws Exception {
+        String username = "not-existing-user";
+        when(userService.findApplicationUserResponseByUsername(username))
+                .thenThrow(ApplicationUserNotFoundException.class);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .get("/manage/users/{username}", username)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -100,25 +113,80 @@ class UserManagementControllerTest {
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void setRoleOfApplicationUser() throws Exception {
-        when(userService.loadUserByUsername(user1.getUsername())).thenReturn((UserDetails) user1);
+    void setRoleOfApplicationUser_should_set_role_for_admin_users() throws Exception {
+        ApplicationUser user = new ApplicationUser("johnny", "John", "Doe", "johndoe@gmail.com", "password");
+        when(userService.loadUserByUsername(user.getUsername())).thenReturn(user);
         mockMvc.perform(MockMvcRequestBuilders
-                        .patch("/manage/users/role?username=johnny?role=staff")
-                        .param("username", "johnny")
+                        .patch("/manage/users/role")
+                        .param("username", user.getUsername())
                         .param("role", "staff")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .characterEncoding("UTF-8"))
-                .andExpect(status().isOk());
-        Assertions.fail();
-        //TODO:
+                .andExpect(status().isOk())
+                .andExpect(content().string(String.format("%s has now the role of %s", user.getUsername(), "staff")));
 
-
+        verify(userService).saveApplicationUser(any(ApplicationUser.class));
+        assertEquals(ApplicationUserRole.STAFF, user.getApplicationUserRole());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void deleteApplicationUser_should_delete_user_by_id_for_admin_users() {
-      //  doNothing(userService.deleteApplicationUserByUsername(user2.getUsername())).
+    void setRoleOfApplicationUser_should_return_statusCode_badRequest_if_user_not_exist() throws Exception {
+        ApplicationUser user = new ApplicationUser("CJ", "Carl", "Johnson", "johnsonc@gmail.com", "password");
+        when(userService.loadUserByUsername(user.getUsername())).thenThrow(UsernameNotFoundException.class);
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/users/role")
+                        .param("username", user.getUsername())
+                        .param("role", "staff")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8"))
+                .andExpect(status().isBadRequest());
+
+        verify(userService, never()).saveApplicationUser(any(ApplicationUser.class));
+        assertEquals(ApplicationUserRole.USER, user.getApplicationUserRole());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void setRoleOfApplicationUser_should_return_statusCode_badRequest_if_role_not_exist() throws Exception {
+        ApplicationUser user = new ApplicationUser("CJ", "Carl", "Johnson", "johnsonc@gmail.com", "password");
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/users/role")
+                        .param("username", user.getUsername())
+                        .param("role", "qwerty")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8"))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("Provided role does not exist.", result.getResolvedException().getMessage()));
+
+        verify(userService, never()).saveApplicationUser(any(ApplicationUser.class));
+        assertEquals(ApplicationUserRole.USER, user.getApplicationUserRole());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void deleteApplicationUser_should_delete_user_by_id_for_admin_users() throws Exception {
+        doNothing().when(userService).deleteApplicationUserByUsername(user2.getUsername());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/manage/users/{username}", user2.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(String.format("Application User with username %s successfully deleted", user2.getUsername())));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void deleteApplicationUser_should_should_return_statusCode_BadRequest_if_user_not_exist() throws Exception {
+        String username = "not-existing-user";
+        doThrow(ApplicationUserNotFoundException.class).when(userService).deleteApplicationUserByUsername(username);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete("/manage/users/{username}", username)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }
