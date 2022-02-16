@@ -38,7 +38,7 @@ class BugCommentControllerTest {
 
     @Test
     @WithMockUser(roles = {"USER", "STAFF", "ADMIN"})
-    void postBugComment_should_addComment_and_sendNotificationEmailToBugReporterAndAssignee_for_all_registered_users() throws Exception {
+    void postBugComment_should_addComment_and_sendNotificationEmailToBugReporterAndAssignee() throws Exception {
         BugCommentRequest request = new BugCommentRequest(content);
         long bugId = 3L;
         String author = "user";
@@ -57,7 +57,7 @@ class BugCommentControllerTest {
 
     @Test
     @WithMockUser(roles = {"ADMIN", "STAFF"})
-    void deleteBugComment_should_invoke_deleteBugComment_of_BugCommentService_for_admin_and_staff_users() throws Exception {
+    void deleteBugComment_should_invoke_deleteBugComment_of_BugCommentService() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/manage/comments/{commentId}", commentId)
                         .contentType(MediaType.APPLICATION_JSON))
