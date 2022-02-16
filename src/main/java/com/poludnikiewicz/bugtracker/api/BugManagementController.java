@@ -19,7 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -48,7 +50,7 @@ public class BugManagementController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<List<BugResponse>> showByPriority(@Parameter(description = "Priorities: P1_CRITICAL," +
             " P2_IMPORTANT, P3_NORMAL, P4_MARGINAL, P5_REDUNTANT, UNSET." +
-            " Also possible input: p3, marginal etc.") @RequestParam String priority) {
+            " Also possible input: p3, marginal etc.") @RequestParam @NotBlank String priority) {
         List<BugResponse> bugsByPriority = bugService.findBugsByPriority(priority);
         return new ResponseEntity<>(bugsByPriority, HttpStatus.OK);
     }
@@ -67,7 +69,7 @@ public class BugManagementController {
     @JsonView(Views.General.class)
     @Operation(summary = "Displays list of bugs by assigned to the User(Staff member) passed as param")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<List<BugResponse>> showBugsAssignedToUser(@RequestParam String username) {
+    public ResponseEntity<List<BugResponse>> showBugsAssignedToUser(@RequestParam @NotBlank String username) {
         List<BugResponse> bugs = bugService.findAllBugsAssignedToApplicationUser(username);
 
         return new ResponseEntity<>(bugs, HttpStatus.OK);
@@ -77,7 +79,7 @@ public class BugManagementController {
     @JsonView(Views.General.class)
     @Operation(summary = "Displays list of bugs sorted according to provided key")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@Parameter(description = "Choose one of BugResponse fields") @RequestParam String key,
+    public ResponseEntity<List<BugResponse>> sortBugsAccordingToKey(@Parameter(description = "Choose one of BugResponse fields") @RequestParam @NotBlank String key,
                                                                     @Parameter(description = "asc = ascending order," +
                                                                             " desc = descending order. Default: asc")
                                                                     @RequestParam(required = false) String direction) {
@@ -90,7 +92,9 @@ public class BugManagementController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBug(@PathVariable Long bugId) {
         Bug bug = bugService.findById(bugId);
-        drawNotificationEmail(bug.getReporterOfBug().getEmail(), "bug deleted");
+        if (bug.getReporterOfBug() != null) {
+            drawNotificationEmail(bug.getReporterOfBug().getEmail(), "bug deleted");
+        }
         bugService.deleteBug(bugId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -99,7 +103,7 @@ public class BugManagementController {
     @PutMapping("/{bugId}")
     @Operation(summary = "Admin updates bug with provided ID")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> updateBug(@RequestBody BugRequest bug, @PathVariable Long bugId) {
+    public ResponseEntity<String> updateBug(@RequestBody @Valid BugRequest bug, @PathVariable Long bugId) {
 
         bugService.updateBugByBugRequest(bug, bugId);
 
