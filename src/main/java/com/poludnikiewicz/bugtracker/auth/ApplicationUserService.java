@@ -114,6 +114,7 @@ public class ApplicationUserService implements UserDetailsService {
 
     private BugShorterResponse mapToBugShorterResponse(Bug bug) {
         return BugShorterResponse.builder()
+                .bugId(bug.getId())
                 .summary(bug.getSummary())
                 .lastChangeAt(bug.getLastChangeAt())
                 .status(bug.getStatus())

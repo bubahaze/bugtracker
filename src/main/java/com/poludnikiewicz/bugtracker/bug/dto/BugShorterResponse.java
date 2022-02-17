@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 public class BugShorterResponse {
 
+    private long bugId;
     private String summary;
     @JsonFormat(pattern="yyyy/MM/dd HH:mm:ss")
     private LocalDateTime lastChangeAt;
