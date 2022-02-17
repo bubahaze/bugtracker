@@ -1,6 +1,7 @@
 package com.poludnikiewicz.bugtracker.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.poludnikiewicz.bugtracker.auth.ApplicationUser;
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import com.poludnikiewicz.bugtracker.bug.Bug;
 import com.poludnikiewicz.bugtracker.bug.BugPriority;
@@ -10,6 +11,7 @@ import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
 import com.poludnikiewicz.bugtracker.email.EmailService;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
+import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -20,19 +22,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import javax.validation.ConstraintViolationException;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -64,6 +63,8 @@ public class BugManagementControllerTest {
             "assignee2", "Windows10", "reporter2", BugPriority.P2_IMPORTANT,
             0, Collections.emptyList());
     long bugId = 4L;
+    ApplicationUser assignee = new ApplicationUser("CJ", "Carl", "Johnson", "johnsonc@gmail.com", "password");
+    Bug bug = Bug.builder().status(BugStatus.REPORTED).build();
 
 
     @Test
@@ -116,15 +117,16 @@ public class BugManagementControllerTest {
     }
 
     @Test
-    void showByPriority_should_return_statusCode_BadRequest_if_priority_param_blank() throws Exception {
+    void showByPriority_should_throw_ConstraintViolationException_if_priority_param_blank() throws Exception {
         String priority = " ";
-        when(bugService.findBugsByPriority(priority)).thenThrow(ConstraintViolationException.class);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/manage/bugs")
                         .param("priority", priority)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("showByPriority.priority: must not be blank", result.getResolvedException().getMessage()));
     }
 
     @Test
@@ -170,15 +172,17 @@ public class BugManagementControllerTest {
     }
 
     @Test
-    void showBugsAssignedToUser_should_return_statusCode_BadRequest_if_user_param_blank() throws Exception {
+    void showBugsAssignedToUser_should_throw_ConstraintViolationException_if_username_param_blank() throws Exception {
         String assignee = " ";
-        when(bugService.findAllBugsAssignedToApplicationUser(assignee)).thenThrow(ConstraintViolationException.class);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/manage/bugs/assigned-to")
                         .param("username", assignee)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect((result -> assertEquals("showBugsAssignedToUser.username: must not be blank",
+                        result.getResolvedException().getMessage())));
     }
 
     @Test
@@ -213,24 +217,26 @@ public class BugManagementControllerTest {
     }
 
     @Test
-    void sortBugsAccordingToKey_should_return_statusCode_BadRequest_when_key_param_blank() throws Exception {
+    void sortBugsAccordingToKey_should_throw_ConstraintViolationException_if_key_param_blank() throws Exception {
         String key = " ";
         String direction = "desc";
-        when(bugService.sortBugsAccordingToKey(key, direction)).thenThrow(ConstraintViolationException.class);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/manage/bugs/sort")
                         .param("key", key)
                         .param("direction", direction)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect((result -> assertEquals("sortBugsAccordingToKey.key: must not be blank",
+                        result.getResolvedException().getMessage())));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void deleteBug_should_invoke_deleteBug_of_BugService() throws Exception {
-        Bug bug = mock(Bug.class);
-        when(bugService.findById(bugId)).thenReturn(bug);
+        Bug mockBug = mock(Bug.class);
+        when(bugService.findById(bugId)).thenReturn(mockBug);
         doNothing().when(bugService).deleteBug(bugId);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -266,24 +272,195 @@ public class BugManagementControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
                 .andExpect(content().string(String.format("Bug with %d successfully updated", bugId)));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    void assignStaffToBug() {
+    void assignStaffToBug_should_assign_bug_and_change_its_status_to_Assigned() throws Exception {
+        assignee.setApplicationUserRole(ApplicationUserRole.STAFF);
+        String assigneeUsername = "username of assignee";
+        when(bugService.findById(bugId)).thenReturn(bug);
+        when(userService.loadUserByUsername(assigneeUsername)).thenReturn(assignee);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/assignee/{bugId}", bugId)
+                        .param("staffAssigneeUsername", assigneeUsername)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(String.format("Bug with id %d has been assigned to %s", bugId, assigneeUsername)));
+
+        assertEquals(BugStatus.ASSIGNED, bug.getStatus());
+        assertEquals(assignee, bug.getAssignedStaffMember());
     }
 
     @Test
-    void assignBugToPrincipal() {
+    @WithMockUser(roles = "ADMIN")
+    void assignStaffToBug_should_assign_throw_IllegalStateException_if_assignee_not_staff_or_admin() throws Exception {
+        bug.setStatus(BugStatus.REPORTED);
+        assignee.setApplicationUserRole(ApplicationUserRole.USER);
+        String assigneeUsername = "username of assignee";
+        when(bugService.findById(bugId)).thenReturn(bug);
+        when(userService.loadUserByUsername(assigneeUsername)).thenReturn(assignee);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/assignee/{bugId}", bugId)
+                        .param("staffAssigneeUsername", assigneeUsername)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalStateException))
+                .andExpect(result -> assertEquals("Assignee must be of role STAFF or ADMIN",
+                        result.getResolvedException().getMessage()));
+
+        assertEquals(BugStatus.REPORTED, bug.getStatus());
+        assertNull(bug.getAssignedStaffMember());
     }
 
     @Test
-    void setPriorityOfBug() {
+    @WithMockUser(roles = "ADMIN")
+    void assignStaffToBug_should_assign_throw_ConstraintViolationException_if_param_blank() throws Exception {
+        bug.setStatus(BugStatus.REPORTED);
+        assignee.setApplicationUserRole(ApplicationUserRole.USER);
+        String assigneeUsername = " ";
+        when(bugService.findById(bugId)).thenReturn(bug);
+        when(userService.loadUserByUsername(assigneeUsername)).thenReturn(assignee);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/assignee/{bugId}", bugId)
+                        .param("staffAssigneeUsername", assigneeUsername)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("assignStaffToBug.staffAssigneeUsername: must not be blank",
+                        result.getResolvedException().getMessage()));
+
+        assertEquals(BugStatus.REPORTED, bug.getStatus());
+        assertNull(bug.getAssignedStaffMember());
     }
 
     @Test
-    void setStatusOfBug() {
+    @WithMockUser(roles = "STAFF")
+    void assignBugToPrincipal_should_assign_bug_with_provided_id_to_principal() throws Exception {
+        bug.setStatus(BugStatus.REPORTED);
+        assignee.setApplicationUserRole(ApplicationUserRole.STAFF);
+        String assigneeUsername = "user";
+        when(bugService.findById(bugId)).thenReturn(bug);
+        when(userService.loadUserByUsername(assigneeUsername)).thenReturn(assignee);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/staff/assignee/{bugId}", bugId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(String.format("Bug with id %d has been assigned to you", bugId)));
+
+        assertEquals(BugStatus.ASSIGNED, bug.getStatus());
+        assertEquals(assignee, bug.getAssignedStaffMember());
+    }
+
+    @Test
+    void setPriorityOfBug_should_set_priority_from_param_and_save_bug() throws Exception {
+        String priority = "p1";
+        when(bugService.findById(bugId)).thenReturn(bug);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/priority/{bugId}", bugId)
+                        .param("priority", priority)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(String.format("Priority successfully set to %s", priority)));
+
+        assertEquals(BugPriority.P1_CRITICAL, bug.getPriority());
+        verify(bugService).saveBug(bug);
+    }
+
+    @Test
+    void setPriorityOfBug_should_throw_ConstraintViolationException_if_priority_param_blank() throws Exception {
+        bug.setPriority(BugPriority.UNSET);
+        String priority = " ";
+        when(bugService.findById(bugId)).thenReturn(bug);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/priority/{bugId}", bugId)
+                        .param("priority", priority)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("setPriorityOfBug.priority: must not be blank",
+                        result.getResolvedException().getMessage()));
+
+        assertEquals(BugPriority.UNSET, bug.getPriority());
+        verify(bugService, never()).saveBug(bug);
+    }
+
+    @Test
+    void setPriorityOfBug_should_throw_IllegalArgumentException_if_priority_param_incorrect() throws Exception {
+        bug.setPriority(BugPriority.UNSET);
+        String priority = "crucial";
+        when(bugService.findById(bugId)).thenReturn(bug);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/priority/{bugId}", bugId)
+                        .param("priority", priority)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException))
+                .andExpect(result -> assertEquals("Provided priority type does not exist",
+                        result.getResolvedException().getMessage()));
+
+        verify(bugService, never()).saveBug(bug);
+    }
+
+    @Test
+    void setStatusOfBug_should_set_status_from_param_and_saveBug() throws Exception {
+        String status = "resolved";
+        when(bugService.findById(bugId)).thenReturn(bug);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/{bugId}", bugId)
+                        .param("status", status)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(String.format("Status successfully set to %s", status.toUpperCase())));
+
+        assertEquals(BugStatus.RESOLVED, bug.getStatus());
+        verify(bugService).saveBug(bug);
+    }
+
+    @Test
+    void setStatusOfBug_should_throw_ConstraintViolationException_if_status_param_blank() throws Exception {
+        bug.setStatus(BugStatus.REPORTED);
+        String status = " ";
+        when(bugService.findById(bugId)).thenReturn(bug);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/{bugId}", bugId)
+                        .param("status", status)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("setStatusOfBug.status: must not be blank",
+                        result.getResolvedException().getMessage()));
+
+        assertEquals(BugStatus.REPORTED, bug.getStatus());
+        verify(bugService, never()).saveBug(bug);
+    }
+
+    @Test
+    void setStatusOfBug_should_throw_Exception_if_status_param_incorrect() throws Exception {
+        bug.setStatus(BugStatus.REPORTED);
+        String status = "qwerty";
+        when(bugService.findById(bugId)).thenReturn(bug);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .patch("/manage/bugs/{bugId}", bugId)
+                        .param("status", status)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof IllegalArgumentException));
+
+        assertEquals(BugStatus.REPORTED, bug.getStatus());
+        verify(bugService, never()).saveBug(bug);
     }
 }
