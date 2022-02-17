@@ -7,7 +7,7 @@ import org.junit.jupiter.params.converter.ConvertWith;
 import org.junit.jupiter.params.converter.SimpleArgumentConverter;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BugPriorityTest {
 
@@ -16,17 +16,21 @@ class BugPriorityTest {
             "imPorTaNT, BugPriority.P2_IMPORTANT", "p2_imPorTaNT, BugPriority.P2_IMPORTANT", "p2, BugPriority.P2_IMPORTANT",
             "norMAL, BugPriority.P3_NORMAL", "p3, BugPriority.P3_NORMAL", "p3_norMAL, BugPriority.P3_NORMAL",
             "p4, BugPriority.P4_MARGINAL", "MARGINAL, BugPriority.P4_MARGINAL", "p4_MARGINAL, BugPriority.P4_MARGINAL",
-            "p5, BugPriority.P5_REDUNDANT", "redundant, BugPriority.P5_REDUNDANT", "p5_ReduNDant, BugPriority.P5_REDUNDANT"})
+            "p5, BugPriority.P5_REDUNDANT", "redundant, BugPriority.P5_REDUNDANT", "p5_ReduNDant, BugPriority.P5_REDUNDANT",
+            "unset, BugPriority.UNSET"})
     void sanitizePriorityInput_should_return_correct_BugPriority_enum(String input, @ConvertWith(StringArgConverter.class) BugPriority expected) {
         BugPriority actual = BugPriority.sanitizePriorityInput(input);
         assertEquals(expected, actual);
     }
 
     @Test
-    void sanitizePriorityInput_should_throw_exception_upon_incorrect_form_of_arg() {
-        BugPriority expected = BugPriority.UNSET;
-        BugPriority actual = BugPriority.sanitizePriorityInput("p1_crucial");
-        assertEquals(expected, actual);
+    void sanitizePriorityInput_should_throw_IllegalArgumentException_upon_incorrect_form_of_arg() {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> BugPriority.sanitizePriorityInput("p1_crucial"));
+
+        String expectedMessage = "Provided priority type does not exist";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     static class StringArgConverter extends SimpleArgumentConverter {
@@ -42,6 +46,8 @@ class BugPriorityTest {
                 return BugPriority.P4_MARGINAL;
             } else if (source.equals("BugPriority.P5_REDUNDANT")) {
                 return BugPriority.P5_REDUNDANT;
+            } else if (source.equals("BugPriority.UNSET")) {
+                return BugPriority.UNSET;
             }
             throw new UnsupportedOperationException("Incorrect string value of source");
         }
