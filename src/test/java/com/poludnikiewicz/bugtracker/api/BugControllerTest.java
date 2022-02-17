@@ -30,6 +30,8 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -135,15 +137,16 @@ class BugControllerTest {
     }
 
     @Test
-    void searchByProject_should_return_statusCode_BadRequest_if_project_param_blank() throws Exception {
+    void searchByProject_should_throw_ConstraintViolation_Exception_if_project_param_blank() throws Exception {
         String project = " ";
-        when(bugService.findByProject(project)).thenThrow(ConstraintViolationException.class);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/bugs/search/project")
                         .param("project", project)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("searchByProject.project: must not be blank", result.getResolvedException().getMessage()));
     }
 
     @Test
@@ -168,15 +171,16 @@ class BugControllerTest {
     }
 
     @Test
-    void searchByKeyword_should_return_statusCode_BadRequest_if_keyword_param_blank() throws Exception {
+    void searchByKeyword_should_throw_ConstraintViolationException_if_keyword_param_blank() throws Exception {
         String keyword = " ";
-        when(bugService.findByKeyword(keyword)).thenThrow(ConstraintViolationException.class);
 
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/bugs/search/keyword")
                         .param("keyword", keyword)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ConstraintViolationException))
+                .andExpect(result -> assertEquals("searchByKeyword.keyword: must not be blank", result.getResolvedException().getMessage()));
     }
 
     @Test
