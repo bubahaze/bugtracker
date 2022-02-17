@@ -119,7 +119,9 @@ public class BugManagementController {
 
         if (isStaffOrAdmin(staffAssignee)) {
             assignToBugAndChangeBugStatus(bug, staffAssignee);
-            drawNotificationEmail(bug.getReporterOfBug().getEmail(), staffAssignee);
+            if (bug.getReporterOfBug() != null) {
+                drawNotificationEmail(bug.getReporterOfBug().getEmail(), staffAssignee);
+            }
         } else {
             throw new IllegalStateException("Assignee must be of role STAFF or ADMIN");
         }
@@ -141,9 +143,11 @@ public class BugManagementController {
         Bug bug = bugService.findById(bugId);
         ApplicationUser staffAssignee = (ApplicationUser) userService.loadUserByUsername(usernameOfPrincipal);
         assignToBugAndChangeBugStatus(bug, staffAssignee);
-        drawNotificationEmail(bug.getReporterOfBug().getEmail(), staffAssignee);
+        if (bug.getReporterOfBug() != null) {
+            drawNotificationEmail(bug.getReporterOfBug().getEmail(), staffAssignee);
+        }
 
-        return new ResponseEntity<>(String.format("Bug with id %d successfully assigned to you", bugId), HttpStatus.OK);
+        return new ResponseEntity<>(String.format("Bug with id %d has been assigned to you", bugId), HttpStatus.OK);
 
     }
 
@@ -158,14 +162,15 @@ public class BugManagementController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<String> setPriorityOfBug(@PathVariable Long bugId, @Parameter(description = "Priorities: P1_CRITICAL, P2_IMPORTANT," +
             " P3_NORMAL, P4_MARGINAL, P5_REDUNDANT, UNSET." +
-            " Also possible input: p3, marginal etc.") @RequestParam String priority) {
+            " Also possible input: p3, marginal etc.") @RequestParam @NotBlank String priority) {
         Bug bug = bugService.findById(bugId);
 
         BugPriority priorityToSet = BugPriority.sanitizePriorityInput(priority);
         bug.setPriority(priorityToSet);
         bugService.saveBug(bug);
-        drawNotificationEmail(bug.getReporterOfBug().getEmail(), priorityToSet);
-
+        if (bug.getReporterOfBug() != null) {
+            drawNotificationEmail(bug.getReporterOfBug().getEmail(), priorityToSet);
+        }
 
         return new ResponseEntity<>(String.format("Priority successfully set to %s", priority), HttpStatus.OK);
     }
@@ -175,13 +180,14 @@ public class BugManagementController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     @Operation(summary = "Admin or Staff member sets status of bug")
     public ResponseEntity<String> setStatusOfBug(@PathVariable Long bugId, @Parameter(description = "Options: Reported," +
-            " Assigned, Resolved") @RequestParam String status) {
+            " Assigned, Resolved") @RequestParam @NotBlank String status) {
         Bug bug = bugService.findById(bugId);
         BugStatus statusToSet = BugStatus.valueOf(status.toUpperCase());
         bug.setStatus(statusToSet);
         bugService.saveBug(bug);
-        drawNotificationEmail(bug.getReporterOfBug().getEmail(), statusToSet);
-
+        if (bug.getReporterOfBug() != null) {
+            drawNotificationEmail(bug.getReporterOfBug().getEmail(), statusToSet);
+        }
         return new ResponseEntity<>(String.format("Status successfully set to %s", statusToSet), HttpStatus.OK);
     }
 
