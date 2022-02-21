@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@WithMockUser(roles = {"ADMIN", "STAFF"})
 class BugCommentControllerTest {
 
     @Autowired
@@ -56,7 +57,6 @@ class BugCommentControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN", "STAFF"})
     void deleteBugComment_should_invoke_deleteBugComment_of_BugCommentService() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/manage/comments/{commentId}", commentId)
@@ -67,7 +67,6 @@ class BugCommentControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN", "STAFF"})
     void deleteBugComment_should_return_statusCode_badRequest_if_comment_not_exist() throws Exception {
         doThrow(IllegalArgumentException.class).when(commentService).deleteBugComment(commentId);
 
@@ -77,7 +76,6 @@ class BugCommentControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN", "STAFF"})
     void updateBugComment_should_invoke_updateBugComment_of_BugCommentService() throws Exception {
 
         mockMvc.perform(MockMvcRequestBuilders.patch("/manage/comments/{commentId}", commentId)
@@ -91,7 +89,6 @@ class BugCommentControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = {"ADMIN", "STAFF"})
     void updateBugComment_should_return_statusCode_BadRequest_if_content_is_blank() throws Exception {
         String blankContent = " ";
 

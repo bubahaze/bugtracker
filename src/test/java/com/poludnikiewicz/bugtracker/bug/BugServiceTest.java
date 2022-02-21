@@ -35,8 +35,14 @@ class BugServiceTest {
     ApplicationUserRepository userRepository;
     @InjectMocks
     BugService bugService;
-    final String reporterUsername = "bugReporter_94";
-    final Long bugId = 56L;
+    ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
+            "johndoe@gmail.com", "password");
+    String reporterUsername = "bugReporter_94";
+    Long bugId = 56L;
+    String summary = "test-summary";
+    String project = "test-project";
+    String description = "test-description";
+    String opSystem = "Windows10";
 
 
     @Test
@@ -61,11 +67,7 @@ class BugServiceTest {
     }
 
     @Test
-    void addBug_should_build_Bug_from_BugRequest_and_save_it() {
-        String summary = "test-summary";
-        String project = "test-project";
-        String description = "test-description";
-        String opSystem = "Windows10";
+    void addBug_should_build_Bug_from_BugRequest_and_save() {
         BugRequest request = new BugRequest(summary, project, description, opSystem);
         ApplicationUser reporter = mock(ApplicationUser.class);
         when(userRepository.findByUsername(reporterUsername)).thenReturn(Optional.of(reporter));
@@ -100,10 +102,6 @@ class BugServiceTest {
                 .description("old-description")
                 .opSystemWhereBugOccurred("old OS")
                 .build();
-        String summary = "test-summary";
-        String project = "test-project";
-        String description = "test-description";
-        String opSystem = "Windows10";
         BugRequest request = new BugRequest(summary, project, description, opSystem);
         ArgumentCaptor<Bug> captor = ArgumentCaptor.forClass(Bug.class);
 
@@ -148,15 +146,9 @@ class BugServiceTest {
 
     @Test
     void findBugResponseById_should_return_bugResponse_mapped_from_passed_bug() {
-        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
         ApplicationUser assignee = new ApplicationUser("mariaC", "maria", "carley",
                 "carleym@gmail.com", "password");
         List<BugComment> bugComments = List.of(mock(BugComment.class), mock(BugComment.class));
-        String summary = "summary";
-        String project = "project";
-        String description = "description";
-        String opSystem = "Windows10";
         BugStatus status = BugStatus.REPORTED;
         BugPriority priority = BugPriority.P2_IMPORTANT;
         Bug bug = Bug.builder()
@@ -192,9 +184,6 @@ class BugServiceTest {
 
     @Test
     void findByProject_should_return_List_of_BugResponses_with_searched_project_name() {
-        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
-        String project = "some project";
         Bug bug1 = Bug.builder().project(project).reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
         Bug bug2 = Bug.builder().project(project).reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
         Bug bug3 = Bug.builder().project(project).reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
@@ -215,8 +204,6 @@ class BugServiceTest {
 
     @Test
     void sortBugsAccordingToKey_should_return_List_of_BugResponses_in_ascending_order_sorted_by_key() {
-        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
         Bug bug1 = Bug.builder().project("b project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
         Bug bug2 = Bug.builder().project("a project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
         Bug bug3 = Bug.builder().project("c project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
@@ -235,8 +222,6 @@ class BugServiceTest {
 
     @Test
     void sortBugsAccordingToKey_should_return_List_of_BugResponses_in_descending_order_sorted_by_key() {
-        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
         Bug bug1 = Bug.builder().project("b project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
         Bug bug2 = Bug.builder().project("a project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();
         Bug bug3 = Bug.builder().project("c project").reporterOfBug(reporter).bugComments(Collections.emptyList()).build();

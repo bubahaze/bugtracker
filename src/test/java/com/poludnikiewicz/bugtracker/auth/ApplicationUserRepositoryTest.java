@@ -25,8 +25,5 @@ class ApplicationUserRepositoryTest {
         entityManager.refresh(user);
 
         assertTrue(user.isEnabled());
-
-
-
     }
 }

@@ -92,7 +92,7 @@ class UserManagementControllerTest {
 
     @Test
     @WithMockUser(roles = {"STAFF", "ADMIN"})
-    void showByRole_should_show_users_with_role_provided_for_staff_and_admin_users() throws Exception {
+    void showByRole_should_display_users_with_role_provided_for_staff_and_admin_users() throws Exception {
         when(userService.findByRole("user")).thenReturn(List.of(user1, user2));
         mockMvc.perform(MockMvcRequestBuilders
                         .get("/manage/users/role")
@@ -133,11 +133,10 @@ class UserManagementControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void setRoleOfApplicationUser_should_return_statusCode_badRequest_if_user_not_exist() throws Exception {
-        ApplicationUser user = new ApplicationUser("CJ", "Carl", "Johnson", "johnsonc@gmail.com", "password");
-        when(userService.loadUserByUsername(user.getUsername())).thenThrow(UsernameNotFoundException.class);
+        when(userService.loadUserByUsername(user2.getUsername())).thenThrow(UsernameNotFoundException.class);
         mockMvc.perform(MockMvcRequestBuilders
                         .patch("/manage/users/role")
-                        .param("username", user.getUsername())
+                        .param("username", user2.getUsername())
                         .param("role", "staff")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -145,16 +144,15 @@ class UserManagementControllerTest {
                 .andExpect(status().isBadRequest());
 
         verify(userService, never()).saveApplicationUser(any(ApplicationUser.class));
-        assertEquals(ApplicationUserRole.USER, user.getApplicationUserRole());
+        assertEquals(ApplicationUserRole.USER, user2.getApplicationUserRole());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void setRoleOfApplicationUser_should_return_statusCode_badRequest_if_role_not_exist() throws Exception {
-        ApplicationUser user = new ApplicationUser("CJ", "Carl", "Johnson", "johnsonc@gmail.com", "password");
         mockMvc.perform(MockMvcRequestBuilders
                         .patch("/manage/users/role")
-                        .param("username", user.getUsername())
+                        .param("username", user1.getUsername())
                         .param("role", "qwerty")
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -163,13 +161,12 @@ class UserManagementControllerTest {
                 .andExpect(result -> assertEquals("Provided role does not exist.", result.getResolvedException().getMessage()));
 
         verify(userService, never()).saveApplicationUser(any(ApplicationUser.class));
-        assertEquals(ApplicationUserRole.USER, user.getApplicationUserRole());
+        assertEquals(ApplicationUserRole.USER, user1.getApplicationUserRole());
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
     void deleteApplicationUser_should_delete_user_by_id_for_admin_users() throws Exception {
-        doNothing().when(userService).deleteApplicationUserByUsername(user2.getUsername());
 
         mockMvc.perform(MockMvcRequestBuilders
                         .delete("/manage/users/{username}", user2.getUsername())

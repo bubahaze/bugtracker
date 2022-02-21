@@ -33,10 +33,14 @@ class BugCommentServiceTest {
     EmailService emailService;
     @InjectMocks
     BugCommentService commentService;
-    final String authorOfComment = "Joe Krasinski";
-    final String contentOfComment = "this is the content of the comment";
-    final Long bugId = 44L;
-    final Long commentId = 34L;
+    ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe",
+            "johndoe@gmail.com", "password");
+    ApplicationUser reporter = new ApplicationUser("maryc", "maria", "caley",
+            "caleymaria@gmail.com", "password");
+    String authorOfComment = "Joe Krasinski";
+    String contentOfComment = "this is the content of the comment";
+    long bugId = 44L;
+    long commentId = 34L;
 
     @Test
     void addComment_should_invoke_findById_of_BugRepository_if_bug_exists() {
@@ -142,8 +146,6 @@ class BugCommentServiceTest {
 
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_send_email_to_assignee_of_bug_if_bug_exist() {
-        ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
         Bug bug = Bug.builder().id(bugId).assignedStaffMember(assignee).build();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
@@ -162,8 +164,6 @@ class BugCommentServiceTest {
 
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_assignee_if_is_the_comment_author() {
-        ApplicationUser assignee = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
         Bug bug = Bug.builder().id(bugId).assignedStaffMember(assignee).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));
@@ -182,8 +182,6 @@ class BugCommentServiceTest {
 
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_send_email_to_reporter_of_bug_if_bug_exist() {
-        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
         Bug bug = Bug.builder().id(bugId).reporterOfBug(reporter).build();
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
 
@@ -202,8 +200,6 @@ class BugCommentServiceTest {
 
     @Test
     void sendNotificationEmailToBugReporterAndAssignee_should_not_send_email_to_reporter_if_is_the_comment_author() {
-        ApplicationUser reporter = new ApplicationUser("johnny", "john", "doe",
-                "johndoe@gmail.com", "password");
         Bug bug = Bug.builder().id(bugId).reporterOfBug(reporter).build();
 
         when(bugRepository.findById(bugId)).thenReturn(Optional.of(bug));

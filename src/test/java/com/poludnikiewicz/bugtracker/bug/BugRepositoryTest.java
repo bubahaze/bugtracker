@@ -6,7 +6,9 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.annotation.DirtiesContext;
 
+import javax.persistence.EntityManager;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,27 +20,37 @@ class BugRepositoryTest {
 
     @Autowired
     BugRepository bugRepository;
+    @Autowired
+    EntityManager entityManager;
 
     @Test
     void findByProjectContainingIgnoreCaseOrderByLastChangeAtDesc_should_return_list_of_bugsBy_project_orderBy_latest_change() throws InterruptedException {
         Bug bug1 = Bug.builder().project("test-project").build();
-        Thread.sleep(50);
+      //  Thread.sleep(50);
         Bug bug2 = Bug.builder().project("project").build();
-        Thread.sleep(50);
+      //  Thread.sleep(50);
         Bug bug3 = Bug.builder().project("test-project").build();
-        Thread.sleep(50);
+       // Thread.sleep(50);
         Bug bug4 = Bug.builder().project("test-project").build();
 
         bugRepository.save(bug1);
         bugRepository.save(bug2);
         bugRepository.save(bug3);
         bugRepository.save(bug4);
+        bug1.setStatus(BugStatus.ASSIGNED);
+        bug3.setStatus(BugStatus.ASSIGNED);
+        bug4.setStatus(BugStatus.ASSIGNED);
+        bugRepository.save(bug1);
+        bugRepository.save(bug3);
+        bugRepository.save(bug4);
+        entityManager.refresh(bug1);
+        entityManager.refresh(bug3);
+        entityManager.refresh(bug4);
 
         List<Bug> actual = bugRepository.findByProjectContainingIgnoreCaseOrderByLastChangeAtDesc("test");
         List<Bug> expected = List.of(bug4, bug3, bug1);
 
         assertIterableEquals(expected, actual);
-
     }
 
     @Test
@@ -79,11 +91,9 @@ class BugRepositoryTest {
         bugRepository.save(bug8);
 
         List<Bug> actual = bugRepository.findByKeyword("keyword");
-        actual.forEach(System.out::println);
         List<Bug> expected = List.of(bug1, bug2, bug3, bug4);
 
         assertIterableEquals(expected, actual);
-
     }
 
     @Test
@@ -97,13 +107,10 @@ class BugRepositoryTest {
         bugRepository.save(bug2);
         bugRepository.save(bug3);
 
-
         List<Bug> actual = bugRepository.findByKeyword("test");
-        actual.forEach(System.out::println);
         List<Bug> expected = Collections.emptyList();
 
         assertIterableEquals(expected, actual);
-
     }
 
     @Test
@@ -116,7 +123,6 @@ class BugRepositoryTest {
         Bug bug2 = Bug.builder().assignedStaffMember(assignee1).build();
         Bug bug3 = Bug.builder().assignedStaffMember(assignee2).build();
         Bug bug4 = Bug.builder().assignedStaffMember(assignee3).build();
-
 
         bugRepository.save(bug1);
         bugRepository.save(bug2);
@@ -139,7 +145,6 @@ class BugRepositoryTest {
         Bug bug2 = Bug.builder().assignedStaffMember(assignee1).build();
         Bug bug3 = Bug.builder().assignedStaffMember(assignee2).build();
         Bug bug4 = Bug.builder().assignedStaffMember(assignee3).build();
-
 
         bugRepository.save(bug1);
         bugRepository.save(bug2);

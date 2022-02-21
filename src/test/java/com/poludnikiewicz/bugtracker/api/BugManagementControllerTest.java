@@ -9,7 +9,6 @@ import com.poludnikiewicz.bugtracker.bug.BugService;
 import com.poludnikiewicz.bugtracker.bug.BugStatus;
 import com.poludnikiewicz.bugtracker.bug.dto.BugRequest;
 import com.poludnikiewicz.bugtracker.bug.dto.BugResponse;
-import com.poludnikiewicz.bugtracker.email.EmailService;
 import com.poludnikiewicz.bugtracker.exception.BugNotFoundException;
 import com.poludnikiewicz.bugtracker.security.ApplicationUserRole;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -51,7 +50,6 @@ public class BugManagementControllerTest {
     BugService bugService;
     @MockBean
     ApplicationUserService userService;
-    EmailService emailService;
     BugResponse bugResponse1 = new BugResponse(1L, "a-summary", "project1", "description1",
             LocalDateTime.of(2022, Month.FEBRUARY, 10, 14, 33, 44),
             LocalDateTime.of(2022, Month.FEBRUARY, 10, 15, 33, 44), BugStatus.RESOLVED,
@@ -68,7 +66,7 @@ public class BugManagementControllerTest {
 
 
     @Test
-    void showById_should_show_bugResponse_by_id_if_exists() throws Exception {
+    void showById_should_display_bugResponse_by_id_if_exists() throws Exception {
         when(bugService.findBugResponseById(bugResponse1.getId())).thenReturn(bugResponse1);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -96,7 +94,7 @@ public class BugManagementControllerTest {
     }
 
     @Test
-    void showByPriority_should_show_bugResponses_by_priority() throws Exception {
+    void showByPriority_should_display_bugResponses_by_priority() throws Exception {
         String priority = "p2";
         when(bugService.findBugsByPriority(priority)).thenReturn(List.of(bugResponse2));
 
@@ -130,7 +128,7 @@ public class BugManagementControllerTest {
     }
 
     @Test
-    void showBugsAssignedToPrincipal_should_show_bugResponses_assigned_to_principal() throws Exception {
+    void showBugsAssignedToPrincipal_should_display_bugResponses_assigned_to_principal() throws Exception {
         String principalName = "user";
         when(bugService.findAllBugsAssignedToApplicationUser(principalName)).thenReturn(List.of(bugResponse1));
 
@@ -150,7 +148,7 @@ public class BugManagementControllerTest {
     }
 
     @Test
-    void showBugsAssignedToUser_should_show_bugResponses_assigned_to_provided_user() throws Exception {
+    void showBugsAssignedToUser_should_display_bugResponses_assigned_to_provided_user() throws Exception {
 
         String assignee = bugResponse2.getUsernameOfAssignee();
         when(bugService.findAllBugsAssignedToApplicationUser(assignee)).thenReturn(List.of(bugResponse2));
@@ -186,7 +184,7 @@ public class BugManagementControllerTest {
     }
 
     @Test
-    void sortBugsAccordingToKey_should_show_bugs_according_to_key_and_direction() throws Exception {
+    void sortBugsAccordingToKey_should_display_bugs_according_to_key_and_direction() throws Exception {
         String key = "summary";
         String direction = "desc";
         when(bugService.sortBugsAccordingToKey(key, direction)).thenReturn(List.of(bugResponse2, bugResponse1));

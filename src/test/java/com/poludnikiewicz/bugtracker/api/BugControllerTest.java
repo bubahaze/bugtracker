@@ -88,7 +88,7 @@ class BugControllerTest {
     }
 
     @Test
-    void showById_should_show_bugResponse_by_id_if_exists() throws Exception {
+    void showById_should_display_bugResponse_by_id_if_exists() throws Exception {
         when(bugService.findBugResponseById(bugResponse1.getId())).thenReturn(bugResponse1);
 
         mockMvc.perform(MockMvcRequestBuilders
