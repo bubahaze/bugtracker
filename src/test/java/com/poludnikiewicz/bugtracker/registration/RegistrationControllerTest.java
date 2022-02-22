@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -44,7 +43,7 @@ class RegistrationControllerTest {
     void register_should_return_201_status_code_and_success_notification_string_upon_right_registrationRequest() throws Exception {
         RegistrationRequest registrationRequest = new RegistrationRequest("test-user", "John", "Doe",
                 "johndoe@gmail.com", "password");
-        when(registrationService.register(any(RegistrationRequest.class)))
+        when(registrationService.register(registrationRequest))
                 .thenReturn("User successfully registered. A confirmation e-mail has been sent to you");
         String json = mapper.writeValueAsString(registrationRequest);
         mockMvc.perform(post("/registration").contentType(MediaType.APPLICATION_JSON)
@@ -134,9 +133,7 @@ class RegistrationControllerTest {
     @Test
     void register_should_return_register_method_of_registrationService() {
         RegistrationController registrationController = new RegistrationController(registrationService);
-        //when
         registrationController.register(registrationRequest);
-        //then
         Mockito.verify(registrationService).register(registrationRequest);
 
     }
@@ -165,10 +162,7 @@ class RegistrationControllerTest {
     void confirm_should_return_confirmToken_method_of_registrationService() {
         RegistrationController registrationController = new RegistrationController(registrationService);
         String token = "";
-        //when
         registrationController.confirm(token);
-        //then
         Mockito.verify(registrationService).confirmToken(token);
-
     }
 }
