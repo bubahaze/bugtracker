@@ -81,8 +81,10 @@ public class ApplicationUserService implements UserDetailsService {
 
     public List<ApplicationUserResponse> findByRole(String role) {
         ApplicationUserRole userRole = ApplicationUserRole.sanitizeUserRole(role);
-       return applicationUserRepository.findByApplicationUserRole(userRole).stream()
-               .map(this::mapToApplicationUserResponse).collect(Collectors.toList());
+       return applicationUserRepository.findByApplicationUserRole(userRole)
+               .stream()
+               .map(this::mapToApplicationUserResponse)
+               .collect(Collectors.toList());
     }
 
     public ApplicationUserResponse findApplicationUserResponseByUsername(String username) {
@@ -112,6 +114,7 @@ public class ApplicationUserService implements UserDetailsService {
 
     private BugShorterResponse mapToBugShorterResponse(Bug bug) {
         return BugShorterResponse.builder()
+                .bugId(bug.getId())
                 .summary(bug.getSummary())
                 .lastChangeAt(bug.getLastChangeAt())
                 .status(bug.getStatus())

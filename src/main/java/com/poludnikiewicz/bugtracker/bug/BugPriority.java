@@ -24,37 +24,29 @@ public enum BugPriority {
         priority = priority.toUpperCase();
         switch (priority) {
             case "P1":
-                return BugPriority.P1_CRITICAL;
+            case "P1_CRITICAL":
             case "CRITICAL":
                 return BugPriority.P1_CRITICAL;
-            case "P1_CRITICAL":
-                return BugPriority.P1_CRITICAL;
             case "P2":
-                return BugPriority.P2_IMPORTANT;
+            case "P2_IMPORTANT":
             case "IMPORTANT":
                 return BugPriority.P2_IMPORTANT;
-            case "P2_IMPORTANT":
-                return BugPriority.P2_IMPORTANT;
             case "P3":
-                return BugPriority.P3_NORMAL;
+            case "P3_NORMAL":
             case "NORMAL":
                 return BugPriority.P3_NORMAL;
-            case "P3_NORMAL":
-                return BugPriority.P3_NORMAL;
             case "P4":
-                return BugPriority.P4_MARGINAL;
+            case "P4_MARGINAL":
             case "MARGINAL":
                 return BugPriority.P4_MARGINAL;
-            case "P4_MARGINAL":
-                return BugPriority.P4_MARGINAL;
             case "P5":
-                return BugPriority.P5_REDUNDANT;
+            case "P5_REDUNDANT":
             case "REDUNDANT":
                 return BugPriority.P5_REDUNDANT;
-            case "P5_REDUNDANT":
-                return BugPriority.P5_REDUNDANT;
-            default:
+            case "UNSET":
                 return BugPriority.UNSET;
+            default:
+                throw new IllegalArgumentException("Provided priority type does not exist");
         }
     }
 

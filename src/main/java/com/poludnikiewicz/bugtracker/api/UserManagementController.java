@@ -45,7 +45,8 @@ public class UserManagementController {
     @GetMapping("/role")
     @Operation(summary = "Displays list of users according to provided role")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
-    public ResponseEntity<List<ApplicationUserResponse>> showByRole(@Parameter (description = "admin, staff or user") @RequestParam String role) {
+    public ResponseEntity<List<ApplicationUserResponse>> showByRole(@Parameter (description = "admin, staff or user")
+                                                                        @NotBlank @RequestParam String role) {
         List<ApplicationUserResponse> usersByRole = userService.findByRole(role);
         return new ResponseEntity<>(usersByRole, HttpStatus.OK);
     }
@@ -57,9 +58,9 @@ public class UserManagementController {
     public ResponseEntity<String> setRoleOfApplicationUser(@RequestParam String username,
                                                            @Parameter(description = "admin, staff," +
                                                                    " user (case ignored)") @NotBlank @RequestParam String role) {
-        ApplicationUser toSetRole = (ApplicationUser) userService.loadUserByUsername(username);
-        toSetRole.setApplicationUserRole(ApplicationUserRole.sanitizeUserRole(role));
-        userService.saveApplicationUser(toSetRole);
+        ApplicationUser user = (ApplicationUser) userService.loadUserByUsername(username);
+        user.setApplicationUserRole(ApplicationUserRole.sanitizeUserRole(role));
+        userService.saveApplicationUser(user);
 
         return new ResponseEntity<>(String.format("%s has now the role of %s", username, role), HttpStatus.OK);
     }
@@ -67,7 +68,7 @@ public class UserManagementController {
     @DeleteMapping("/{username}")
     @Operation(summary = "Admin deletes user with provided username")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<String> deleteApplicationUser(@PathVariable String username) {
+    public ResponseEntity<String> deleteApplicationUser(@PathVariable @NotBlank String username) {
         userService.deleteApplicationUserByUsername(username);
 
         return new ResponseEntity<>(String.format("Application User with username %s successfully deleted", username),

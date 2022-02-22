@@ -31,44 +31,41 @@ class EmailServiceTest {
 
     @Autowired
     EmailSender emailSender;
-    final String RECIPIENT = "testuser@testing.com";
-    final String CONTENT = "test content";
-    final String SENDER = "igor.poludnikiewicz@gmail.com";
+    String recipient = "testuser@testing.com";
+    String content = "test content";
+    String sender = "igor.poludnikiewicz@gmail.com";
 
     @Test
     void sendConfirmationEmail_should_send_confirmation_email() throws MessagingException, IOException {
-
         String subject = "Confirm your email";
-
-        emailSender.sendConfirmationEmail(RECIPIENT, CONTENT);
+        emailSender.sendConfirmationEmail(recipient, content);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
 
         assertThat(receivedMessages.length).isEqualTo(1);
 
         await().atMost(2, SECONDS).untilAsserted(() -> {
             MimeMessage receivedMessage = receivedMessages[0];
-            assertThat(receivedMessage.getAllRecipients()[0].toString()).isEqualTo(RECIPIENT);
-            assertThat(receivedMessage.getFrom()[0].toString()).isEqualTo(SENDER);
+            assertThat(receivedMessage.getAllRecipients()[0].toString()).isEqualTo(recipient);
+            assertThat(receivedMessage.getFrom()[0].toString()).isEqualTo(sender);
             assertThat(receivedMessage.getSubject()).isEqualTo(subject);
-            assertThat(receivedMessage.getContent().toString()).contains(CONTENT);
+            assertThat(receivedMessage.getContent().toString()).contains(content);
         });
     }
 
     @Test
     void sendNotificationEmail_should_send_notification_email() throws MessagingException, IOException {
         String subject = "Notification about recent changes to issue reported by you";
-        emailSender.sendNotificationEmail(RECIPIENT, CONTENT);
+        emailSender.sendNotificationEmail(recipient, content);
         MimeMessage[] receivedMessages = greenMail.getReceivedMessages();
 
         assertThat(receivedMessages.length).isEqualTo(1);
 
         await().atMost(2, SECONDS).untilAsserted(() -> {
             MimeMessage receivedMessage = receivedMessages[0];
-            assertThat(receivedMessage.getAllRecipients()[0].toString()).isEqualTo(RECIPIENT);
-            assertThat(receivedMessage.getFrom()[0].toString()).isEqualTo(SENDER);
+            assertThat(receivedMessage.getAllRecipients()[0].toString()).isEqualTo(recipient);
+            assertThat(receivedMessage.getFrom()[0].toString()).isEqualTo(sender);
             assertThat(receivedMessage.getSubject()).isEqualTo(subject);
-            assertThat(receivedMessage.getContent().toString()).contains(CONTENT);
+            assertThat(receivedMessage.getContent().toString()).contains(content);
         });
-
     }
 }

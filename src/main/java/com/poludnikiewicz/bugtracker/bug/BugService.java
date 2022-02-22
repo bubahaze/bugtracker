@@ -60,11 +60,6 @@ public class BugService {
                 .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found."));
     }
 
-    public BugResponse findBugResponseById(Long id) {
-        Bug bug = bugRepository.findById(id)
-                .orElseThrow(() -> new BugNotFoundException("Bug with id " + id + " not found."));
-        return mapToBugResponse(bug);
-    }
 
     public List<BugResponse> findByProject(String project) {
         return bugRepository
@@ -126,6 +121,11 @@ public class BugService {
                 .stream()
                 .map(this::mapToBugResponse)
                 .collect(Collectors.toList());
+    }
+
+    public BugResponse findBugResponseById(Long id) {
+        Bug bug = findById(id);
+        return mapToBugResponse(bug);
     }
 
     private BugResponse mapToBugResponse(Bug bug) {

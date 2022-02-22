@@ -3,6 +3,8 @@ package com.poludnikiewicz.bugtracker.security;
 
 import com.poludnikiewicz.bugtracker.auth.ApplicationUserService;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -59,10 +61,10 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(daoAuthenticationProvider());
 
         auth.inMemoryAuthentication()
-                .withUser("admin").password(passwordEncoder.encode("adminpass"))
+                .withUser("memoadmin").password(passwordEncoder.encode("adminpass"))
                 .roles("ADMIN")
                 .and().withUser("memouser").password(passwordEncoder.encode("userpass")).roles("USER")
-                .and().withUser("staffmem").password(passwordEncoder.encode("staffmem")).roles("STAFF");
+                .and().withUser("memostaff").password(passwordEncoder.encode("staffpass")).roles("STAFF");
     }
 
     @Bean
