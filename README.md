@@ -1,8 +1,8 @@
 # bugtracker :bug:
 Web app to report and track bugs. <br>
-👷‍♂️ Currently working on: **unit & integration testing** 🧪 <br>
+<!---👷‍♂️ Currently working on: **unit & integration testing** 🧪 <br>--->
 <!--- 🏭 Next issue: unit & integration testing <br> --->
-🗃️ The app contains so far:
+🗃️ The app contains:
 - access through **REST APIs**, API for staff members, API for all users 🎛️
 - registration & login & security with **Spring Security** 🥬
 - connection with **PostgreSQL** database 🐘
@@ -10,4 +10,5 @@ Web app to report and track bugs. <br>
 - sending confirmation & notification **emails**
 - exception handling (AOP)
 - some MVC
+- unit & integration tests
 - and many more :boom:
